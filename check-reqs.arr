@@ -5,53 +5,35 @@ provide *
 
 ### DO NOT EDIT ANYTHING ABOVE THIS LINE ###
 
-# fun check-reqs(roster :: List<String>) -> Completion:
-#   doc: "https://cs.brown.edu/courses/csci0190/2026/reqs-1.html"
+fun check-reqs(roster :: List<String>) -> Completion:
+  doc: "https://cs.brown.edu/courses/csci0190/2026/reqs-1.html"
 
-#   if not(well-formed(roster)):
-#     malformed
-#   end
+  if not(well-formed(roster)):
+    malformed
+  else:
+    seen = empty
 
-#   if roster.length() == 0:
-#     all-necessary
-#     # is this ok and does it mess up "order of precedence"
-#   end
+    {prereqs-sat; prereqs-seen} = prereqs(roster, seen)
+    {intro-math-sat; intro-math-seen} = intro-math(roster, prereqs-seen)
+    {foundations-sat; foundations-seen} = foundations(roster, intro-math-seen)
+    {core-cs-sat; core-cs-seen} = core-cs(roster, foundations-seen)
+    {tech-elec-sat; tech-elect-seen} = tech-elec(roster, core-cs-seen)
+    {four-add-sat; four-add-seen} = four-add(roster, tech-elect-seen)
+    
+    all-seen = tech-elect-seen + four-add-seen
 
-#   seen = empty
-
-#   {prereqs-sat; prereqs-seen} = prereqs(roster, seen)
-#   {intro-math-sat; intro-math-seen} = intro-math(roster, prereqs-seen)
-#   {foundations-sat; foundations-seen} = foundations(roster, intro-math-seen)
-#   {core-cs-sat; core-cs-seen} = core-cs(roster, foundations-seen)
-#   {tech-elec-sat; tech-elect-seen} = tech-elec(roster, core-cs-seen)
-#   {four-add-sat; four-add-seen} = four-add(roster, tech-elect-seen)
-
-#   if prereqs-sat and intro-math-sat and foundations-sat and 
-#     core-cs-sat and tech-elec-sat and four-add-sat:
-#     completed
-#   else:
-#     ...
-#   end
-
-#   if not(is-empty(not-yet-seen(roster, four-add-seen))):
-#     has-unnecessary
-#   else:
-#     all-necessary
-#   end
-
-#   # should check foundations before the cs19 -> 200+ track
-
-#   # prereqs - done!
-#   # intro math - done
-#   # foundations - done
-#   # core-cs - done
-#   # technical electives - done
-#   # four additional electives
-
-#   # !!!!!! consider asteriks !!!!!!!!
-#   # !!!!!! consider cs nontechnical courses !!!!!!!
-
-# end
+    ask:
+      | prereqs-sat and intro-math-sat and foundations-sat and 
+        core-cs-sat and tech-elec-sat and four-add-sat then:
+        completed
+      | not(is-empty(not-yet-seen(roster, all-seen))) then:
+        has-unnecessary
+      |roster.length() == 0 then:
+        all-necessary
+      | otherwise: all-necessary
+    end
+  end
+end
 
 fun get-dept(course-id :: String) -> String:
   doc: "extracts department name from course-id"
@@ -64,10 +46,12 @@ check "get-dept":
   get-dept("PHP  0060") is "PHP "
 end
 
-# catches the case in which the dept is wrong
 fun get-num(course-id :: String) -> Option<Number>:
   doc: "extracts number from course-id"
-  string-to-number(string-substring(course-id, 5, 9))
+  if (string-length(course-id) < 9): none
+  else:
+    string-to-number(string-substring(course-id, 5, 9))
+  end
 end
 
 check "get-num":
@@ -76,6 +60,7 @@ check "get-num":
   get-num("PHP  0060") is some(0060)
   get-num("PHP  0060123") is some(0060)
   get-num("MATHMATH 0100") is none
+  get-num("MATH0100") is none
 end
 
 fun well-formed(roster :: List<String>) -> Boolean:
@@ -83,7 +68,8 @@ fun well-formed(roster :: List<String>) -> Boolean:
   cases (List) roster:
     | empty => true
     | link(_, _) =>
-      fold(lam(acc, c): bueno(c) and acc end, true, roster)
+      fold(lam(acc, c): ((bueno(c) and acc) 
+          and (c == string-to-upper(c))) end, true, roster)
   end
 end
 
@@ -91,6 +77,8 @@ check "well-formed":
   well-formed(empty) is true
   well-formed([list: "MATH 0100", "CSCI 0150", "PHP  0060", "MATHMATH 0100"]) is false
   well-formed([list: "MATH 0100", "CSCI 0150", "PHP  0060"]) is true
+  well-formed([list: "mAtH 0100"]) is false
+  well-formed([list: "MATH 0100", "CSCI 0150", "MATH0100", "PHP  0060"]) is false
 end
 
 fun bueno(course-id :: String) -> Boolean:
@@ -173,10 +161,8 @@ fun foundations(roster :: List<String>, seen :: List<String>) -> {Boolean; List<
   {has-c2; seen-c2} = has-course("CSCI 0330", valid-courses, seen-b)
 
   ask:
-      #happy cases
     | has-a and has-b and has-c1 then: {true; seen-c1}
     | has-a and has-b and has-c2 then: {true; seen-c2}
-      #sad cases
     | has-c1 then: {false; seen-c1}
     | otherwise: {false; seen-c2}
   end
@@ -227,12 +213,10 @@ fun core-cs(roster :: List<String>, seen :: List<String>) -> {Boolean; List<Stri
   has-200-plus = not(is-empty(all-200-plus))
 
   ask:
-      # happy cases
     | has-111 and has-200 then: {true; link("CSCI 0111", link("CSCI 0200", seen))}
     | has-150 and has-200 then: {true; link("CSCI 0150", link("CSCI 0200", seen))}
     | has-170 and has-200 then: {true; link("CSCI 0170", link("CSCI 0200", seen))}
     | has-190 and has-200-plus then: {true; link("CSCI 0190", link(all-200-plus.get(0), seen))}
-      # sad cases
     | has-111 then: {false; seen-111}
     | has-150 then: {false; seen-150}
     | has-170 then: {false; seen-170}
@@ -254,13 +238,13 @@ end
 
 fun tech-elec(roster :: List<String>, seen :: List<String>) -> {Boolean; List<String>}:
   doc: "determines if the roster satisfies technical elective requirements"
-  
+
   cs-non-tech = [list: "CSCI 1250", "CSCI 1280", "CSCI 1360", "CSCI 1370", 
     "CSCI 1800", "CSCI 1805", "CSCI 1860", "CSCI 1870", 
     "CSCI 1952B", "CSCI 1952X", "CSCI 2002", "CSCI 2200", 
     "CSCI 2402C", "CSCI 2952S", "CSCI 2999A", "APMA 1910", 
     "DEVL 1810", "IAPA 1701A", "IAPA 1801", "PLCY 1702X"]
-  
+
   valid-courses = not-yet-seen(roster, seen)
   all-1000-plus-tech = sort(filter(lam(course): cs-at-least(course, 1000) 
       and not(cs-non-tech.member(course)) end, valid-courses))
@@ -334,6 +318,8 @@ check "four-add":
     is {false; [list: "CSCI 0320", "CSCI 1970", "CSCI 1970"]}
   four-add([list: "CSCI 0320", "CSCI 1970", "CSCI 1970", "CSCI 1973", "CSCI 1000"], empty) 
     is {true; [list: "CSCI 0320", "CSCI 1000", "CSCI 1970", "CSCI 1970"]}
+  four-add([list: "CSCI 0320", "CSCI 1970", "CSCI 1973", "CSCI 1000"], empty) 
+    is {true; [list: "CSCI 0320", "CSCI 1000", "CSCI 1970", "CSCI 1973"]}
   four-add([list: "CSCI 1250", "CSCI 1280", "CSCI 1360", "CSCI 1370"], empty)
     is {false; [list: "CSCI 1250", "CSCI 1280", "CSCI 1360"]}
 end
@@ -504,6 +490,7 @@ check "use-non-cs-1000":
   use-non-cs-1000(eligible-courses, 3, false) is empty
   use-non-cs-1000(eligible-courses, 1, false) is [list: "APMA 1080", "APMA 1160"]
   use-non-cs-1000([list: "APMA 1650", "CLPS 1342"], 2, true) is [list: "CLPS 1342"]
+  use-non-cs-1000([list: "APMA 1655", "APMA 1650"], 1, false) is [list: "APMA 1655"]
 end
 
 fun non-cs-at-least(course :: String, level :: Number) -> Boolean:
