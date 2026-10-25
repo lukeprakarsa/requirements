@@ -4,53 +4,54 @@ include file("reqs-common.arr")
 provide *
 
 ### DO NOT EDIT ANYTHING ABOVE THIS LINE ###
-#|
-   fun check-reqs(roster :: List<String>) -> Completion:
-  doc: "https://cs.brown.edu/courses/csci0190/2026/reqs-1.html"
 
-  if not(well-formed(roster)):
-    malformed
-  end
+# fun check-reqs(roster :: List<String>) -> Completion:
+#   doc: "https://cs.brown.edu/courses/csci0190/2026/reqs-1.html"
 
-  if roster.length() == 0:
-    all-necessary
-    # is this ok and does it mess up "order of precedence"
-  end
+#   if not(well-formed(roster)):
+#     malformed
+#   end
 
-  seen = empty
+#   if roster.length() == 0:
+#     all-necessary
+#     # is this ok and does it mess up "order of precedence"
+#   end
 
-  {prereqs-sat; prereqs-seen} = prereqs(roster, seen)
-  {intro-math-sat; intro-math-seen} = intro-math(roster, prereqs-seen)
-  {foundations-sat; foundations-seen} = foundations(roster, intro-math-seen)
-  {core-cs-sat; core-cs-seen} = core-cs(roster, foundations-seen)
-  {tech-elec-sat; tech-elect-seen} = tech-elec(roster, core-cs-seen)
-  {four-add-sat; four-add-seen} = four-add(roster, tech-elect-seen)
+#   seen = empty
 
-  if prereqs-sat and intro-math-sat and foundations-sat and 
-    core-cs-sat and tech-elec-sat and four-add-sat:
-    completed
-  end
+#   {prereqs-sat; prereqs-seen} = prereqs(roster, seen)
+#   {intro-math-sat; intro-math-seen} = intro-math(roster, prereqs-seen)
+#   {foundations-sat; foundations-seen} = foundations(roster, intro-math-seen)
+#   {core-cs-sat; core-cs-seen} = core-cs(roster, foundations-seen)
+#   {tech-elec-sat; tech-elect-seen} = tech-elec(roster, core-cs-seen)
+#   {four-add-sat; four-add-seen} = four-add(roster, tech-elect-seen)
 
-  if not(is-empty(not-yet-seen(roster, four-add-seen))):
-    has-unnecessary
-  else:
-    all-necessary
-  end
+#   if prereqs-sat and intro-math-sat and foundations-sat and 
+#     core-cs-sat and tech-elec-sat and four-add-sat:
+#     completed
+#   else:
+#     ...
+#   end
 
-  # should check foundations before the cs19 -> 200+ track
+#   if not(is-empty(not-yet-seen(roster, four-add-seen))):
+#     has-unnecessary
+#   else:
+#     all-necessary
+#   end
 
-  # prereqs - done!
-  # intro math - done
-  # foundations - done
-  # core-cs - done
-  # technical electives - done
-  # four additional electives
+#   # should check foundations before the cs19 -> 200+ track
 
-  # !!!!!! consider asteriks !!!!!!!!
-  # !!!!!! consider cs nontechnical courses !!!!!!!
+#   # prereqs - done!
+#   # intro math - done
+#   # foundations - done
+#   # core-cs - done
+#   # technical electives - done
+#   # four additional electives
 
-   end
-|#
+#   # !!!!!! consider asteriks !!!!!!!!
+#   # !!!!!! consider cs nontechnical courses !!!!!!!
+
+# end
 
 fun get-dept(course-id :: String) -> String:
   doc: "extracts department name from course-id"
@@ -253,15 +254,23 @@ end
 
 fun tech-elec(roster :: List<String>, seen :: List<String>) -> {Boolean; List<String>}:
   doc: "determines if the roster satisfies technical elective requirements"
+  
+  cs-non-tech = [list: "CSCI 1250", "CSCI 1280", "CSCI 1360", "CSCI 1370", 
+    "CSCI 1800", "CSCI 1805", "CSCI 1860", "CSCI 1870", 
+    "CSCI 1952B", "CSCI 1952X", "CSCI 2002", "CSCI 2200", 
+    "CSCI 2402C", "CSCI 2952S", "CSCI 2999A", "APMA 1910", 
+    "DEVL 1810", "IAPA 1701A", "IAPA 1801", "PLCY 1702X"]
+  
   valid-courses = not-yet-seen(roster, seen)
-  all-1000-plus = sort(filter(lam(course): cs-at-least(course, 1000) end, valid-courses))
+  all-1000-plus-tech = sort(filter(lam(course): cs-at-least(course, 1000) 
+      and not(cs-non-tech.member(course)) end, valid-courses))
 
-  has-five = all-1000-plus.length() >= 5
-  has-at-least-one = all-1000-plus.length() > 0
+  has-five = all-1000-plus-tech.length() >= 5
+  has-at-least-one = all-1000-plus-tech.length() > 0
 
   ask:
-    | has-five then: {true; all-1000-plus.take(5) + seen}
-    | has-at-least-one then: {false; all-1000-plus.take(all-1000-plus.length()) + seen}
+    | has-five then: {true; all-1000-plus-tech.take(5) + seen}
+    | has-at-least-one then: {false; all-1000-plus-tech.take(all-1000-plus-tech.length()) + seen}
     | otherwise: {false; seen}
   end
 end
@@ -276,6 +285,7 @@ check "tech-elec":
     [list: "CSCI 1000"])
     is {true; [list: "CSCI 1010", "CSCI 1234", "CSCI 2000", "CSCI 5000", "CSCI 5555", "CSCI 1000"]}
   tech-elec(empty, empty) is {false; empty}
+  tech-elec([list: "CSCI 1250", "CSCI 2200", "CSCI 1000"], empty) is {false; [list: "CSCI 1000"]}
 end
 
 fun four-add(roster :: List<String>, seen :: List<String>) -> {Boolean; List<String>}:
