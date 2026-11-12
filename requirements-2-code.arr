@@ -34,7 +34,7 @@ fun check-requirements(courses :: List<String>) -> Completion:
         completed
       | not(is-empty(not-yet-seen(courses, all-seen))) then:
         has-unnecessary
-      |roster.length() == 0 then:
+      | courses.length() == 0 then:
         all-necessary
       | otherwise: all-necessary
     end

@@ -8,10 +8,12 @@ it, so explain your reasoning and never make a spec-interpretation call on your 
 ## Files
 
 The final files must match the Req 2 starter (confirmed by staff on Ed #318). It has three files,
-and each starts with `use context essentials2021`:
+and each starts with `use context essentials2021`. The starter copies in `context/` don't show
+that line; ours have it as line 1:
 
 - `requirements-2-code.arr`: the implementation. It provides
-  `check-requirements :: List<String> -> Completion` and may also contain tests of helpers.
+  `check-requirements(courses :: List<String>) -> Completion` and may also contain tests of
+  helpers. Keep the starter's parameter name, `courses`.
 - `requirements-2-tests.arr`: tests of `check-requirements` only, never of helpers or other
   implementation details.
 - `requirements-2-common.arr`: data bindings, such as test rosters, that both the code file and
@@ -25,11 +27,18 @@ in place of the Drive includes, so that `pyret` can run here:
 
 - `reqs-common.arr` stands in for `requirements-2-definitions.arr` and defines the same
   `Completion`. Never modify it, never copy its definitions elsewhere, and never submit it.
+  Despite its name, it is not the Req 2 "common" file. Copying `data Completion` into
+  `requirements-2-common.arr` was tried on Nov 12 and removed: Pyret rejects it with "shadows a
+  previous declaration of `completed`", because that file already includes the definitions (the
+  browser starter's common file includes them too). Luke is checking Ed on whether anything about
+  `Completion` has to be submitted.
 - The common file includes `reqs-common.arr`. The code file includes `reqs-common.arr` and the
   common file. The tests file includes `reqs-common.arr`, the code file and the common file. Keep
   the starter's `provide *` and `provide-types *` lines.
-- Only the include lines differ from the browser starter. At the end, Luke pastes everything below
-  each file's "DO NOT CHANGE" line into the browser starter.
+- Only the include lines differ from the browser starter. Luke pastes into the browser starter
+  everything after each file's "DO NOT CHANGE" line and the starter's `#` comment lines under it.
+  In the code file that starts at `fun check-requirements` and replaces the starter's stub. In the
+  tests file it replaces the `check: 42 is 42 end` placeholder.
 
 Reference files:
 
@@ -40,7 +49,8 @@ Reference files:
   source of truth for the requirements themselves.
 - `context/handbook.md`: the Concentrator Handbook. Use it only where the Bulletin defers to it,
   and only the rules for the current requirements year, because it also covers older years.
-- `context/ed-clarifications.md`: staff answers from Ed. Treat these as part of the spec.
+- `context/ed-clarifications.md`: staff answers from Ed. Treat these as part of the spec. (Not in
+  the repo as of Nov 12. If a question depends on an Ed post, ask Luke.)
 - `context/feedback-impl-10.md`: how our implementation (impl-10) did against 18 suites. Its tests
   call our old function name, `check-reqs`.
 - `context/feedback-suite-P.md`: how our suite (suite-P) did against 18 implementations.
@@ -48,22 +58,33 @@ Reference files:
 - `context/<starter folder>/`: the three Req 2 browser starter files. Copy their top sections
   (above "DO NOT CHANGE") exactly, except swap the Drive includes for local `include file(...)`.
 
-Run tests with `pyret requirements-2-tests.arr` (pyret-npm). If the CLI rejects something, tell
-Luke instead of working around it in the lines above "DO NOT CHANGE".
+## Running the tests
 
-## First task: switch to the Req 2 layout
+pyret-npm 0.1.28 is the newest release, and it has no `essentials2021` context. So
+`pyret requirements-2-tests.arr` fails with "Could not find builtin module essentials2021".
 
-Our Req 1 files are `check-reqs.arr`, `tests.arr` and `reqs-common.arr`. The function is named
-`check-reqs` and the files use `use context starter2024`. Before any other work:
+- The real check is Luke pasting the files into the browser starter. He does this himself.
+- For a quick local check, copy `reqs-common.arr` and the three `requirements-2-*.arr` files into
+  a temp folder (`$CLAUDE_JOB_DIR/tmp` in background sessions). Change line 1 of the three copies
+  to `use context starter2024` and run `pyret requirements-2-tests.arr` in that folder. Never
+  change the context line in the real files. On Nov 12 this gave 141 of 141.
+- Don't use `essentials2020` for this: it has no `sort` function, and the code calls `sort` 4
+  times. `essentials2021` has it (confirmed in the browser).
+- If the CLI rejects something else, tell Luke instead of working around it in the lines above
+  "DO NOT CHANGE".
 
-1. `git mv check-reqs.arr requirements-2-code.arr`, `git mv tests.arr requirements-2-tests.arr`,
-   and create `requirements-2-common.arr` from the starter's shape.
-2. Rename `check-reqs` to `check-requirements` everywhere, including every test call.
-3. Switch each of the three files to `use context essentials2021` and set up the includes as
-   described under Files.
-4. Run the tests. Everything that passed before should still pass. If the context change breaks
-   something, explain what broke and why before fixing it.
-5. Change no behavior in this step. Show Luke the diff and stop.
+## Status (updated Nov 12)
+
+- The switch to the Req 2 layout is done, on branch `worktree-req2-layout`. Luke ran commit
+  2b16d27 in the browser starter, and every test passed. His commit 42d4538 renamed the parameter
+  to `courses` but missed one `roster`. The next commit fixes that and removes the copied
+  `Completion`, and it passes 141 of 141 locally.
+- The branch isn't merged into `main` yet, so `main` still has the Req 1 files (`check-reqs.arr`,
+  `tests.arr`). Background sessions create worktrees from `origin/main`, so until the merge, work
+  on `worktree-req2-layout`.
+- Next: rebuild the suite-P fixtures with distinct courses (see Feedback triage), then cluster 1.
+- Cleanup: the rename pushed 19 lines of `requirements-2-tests.arr` past 100 characters. Rewrap
+  them. The starter's own comment lines are also over 100; leave those as they are.
 
 ## Spec facts that settle disputes (Req 1 handout)
 
@@ -108,7 +129,8 @@ shows an `Input:` block, that block is the expanded roster.
 
 Our test suite, suite-P, has two problems:
 
-- All 15 tests that at least half the implementations failed (lines 90 to 132) are built on
+- All 15 tests that at least half the implementations failed (lines 90 to 132 of
+  `requirements-2-tests.arr`; the rename didn't shift them) are built on
   `exact-completed-roster`, which lists `"CSCI 1970"` twice (line 119 lists `"CSCI 1973"` twice).
   That input is outside the spec. Line 117 uses `1970` and `1973` and passes on 15 of the 16
   implementations that ran. Rebuild the fixtures with distinct courses, including
@@ -144,6 +166,9 @@ Each line notes how the other implementations split.
   the implementation.
 - Work on one cluster at a time and keep diffs small. After each change, explain in a few
   sentences what changed and why.
+- When Claude creates a branch Luke will keep working on, switch Luke's main checkout to it.
+  Remove any worktree holding the branch first, since git won't check out a branch that's in use
+  in another worktree. Luke pushes; Claude doesn't (the permission check blocked it on Nov 12).
 - `scratch/feedback-check.arr` may hold tests taken from the feedback reports whose expected
   results agree with the spec and the decisions log. It is a local regression check only. Never
   copy those tests into `requirements-2-tests.arr`.
