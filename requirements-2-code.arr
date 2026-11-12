@@ -11,20 +11,20 @@ include file("requirements-2-common.arr")
 #
 # You may write implementation-specific tests (e.g., of helper functions) in this file.
 
-fun check-requirements(roster :: List<String>) -> Completion:
+fun check-requirements(courses :: List<String>) -> Completion:
   doc: "https://cs.brown.edu/courses/csci0190/2026/reqs-2.html"
 
-  if not(well-formed(roster)):
+  if not(well-formed(courses)):
     malformed
   else:
     seen = empty
 
-    {prereqs-sat; prereqs-seen} = prereqs(roster, seen)
-    {intro-math-sat; intro-math-seen} = intro-math(roster, prereqs-seen)
-    {foundations-sat; foundations-seen} = foundations(roster, intro-math-seen)
-    {core-cs-sat; core-cs-seen} = core-cs(roster, foundations-seen)
-    {tech-elec-sat; tech-elect-seen} = tech-elec(roster, core-cs-seen)
-    {four-add-sat; four-add-seen} = four-add(roster, tech-elect-seen)
+    {prereqs-sat; prereqs-seen} = prereqs(courses, seen)
+    {intro-math-sat; intro-math-seen} = intro-math(courses, prereqs-seen)
+    {foundations-sat; foundations-seen} = foundations(courses, intro-math-seen)
+    {core-cs-sat; core-cs-seen} = core-cs(courses, foundations-seen)
+    {tech-elec-sat; tech-elect-seen} = tech-elec(courses, core-cs-seen)
+    {four-add-sat; four-add-seen} = four-add(courses, tech-elect-seen)
     
     all-seen = tech-elect-seen + four-add-seen
 
@@ -32,7 +32,7 @@ fun check-requirements(roster :: List<String>) -> Completion:
       | prereqs-sat and intro-math-sat and foundations-sat and 
         core-cs-sat and tech-elec-sat and four-add-sat then:
         completed
-      | not(is-empty(not-yet-seen(roster, all-seen))) then:
+      | not(is-empty(not-yet-seen(courses, all-seen))) then:
         has-unnecessary
       |roster.length() == 0 then:
         all-necessary
