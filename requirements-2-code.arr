@@ -1,12 +1,18 @@
-use context starter2024
+use context essentials2021
+
+provide *
+provide-types *
 
 include file("reqs-common.arr")
-provide *
 
-### DO NOT EDIT ANYTHING ABOVE THIS LINE ###
+include file("requirements-2-common.arr")
 
-fun check-reqs(roster :: List<String>) -> Completion:
-  doc: "https://cs.brown.edu/courses/csci0190/2026/reqs-1.html"
+# DO NOT CHANGE ANYTHING ABOVE THIS LINE
+#
+# You may write implementation-specific tests (e.g., of helper functions) in this file.
+
+fun check-requirements(roster :: List<String>) -> Completion:
+  doc: "https://cs.brown.edu/courses/csci0190/2026/reqs-2.html"
 
   if not(well-formed(roster)):
     malformed
