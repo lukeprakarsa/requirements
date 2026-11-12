@@ -75,13 +75,18 @@ pyret-npm 0.1.28 is the newest release, and it has no `essentials2021` context. 
 
 ## Status (updated Nov 12)
 
-- The switch to the Req 2 layout is done, on branch `worktree-req2-layout`. Luke ran commit
-  2b16d27 in the browser starter, and every test passed. His commit 42d4538 renamed the parameter
-  to `courses` but missed one `roster`. The next commit fixes that and removes the copied
-  `Completion`, and it passes 141 of 141 locally.
-- The branch isn't merged into `main` yet, so `main` still has the Req 1 files (`check-reqs.arr`,
-  `tests.arr`). Background sessions create worktrees from `origin/main`, so until the merge, work
-  on `worktree-req2-layout`.
+- The switch to the Req 2 layout is done and merged into `main` (Nov 12, fast-forward from
+  `worktree-req2-layout`). Luke ran commit 2b16d27 in the browser starter, and every test passed.
+  His commit 42d4538 renamed the parameter to `courses` but missed one `roster`. b50e783 fixes
+  that and removes the copied `Completion`, and it passes 141 of 141 locally.
+- Background sessions create worktrees from `origin/main`. If `origin/main` still has the Req 1
+  files (`check-reqs.arr`, `tests.arr`), Luke hasn't pushed `main` yet: ask him to.
+- Not ready to submit. The code is still the Req 1 implementation, so everything below has to be
+  done first:
+  - None of the feedback clusters are fixed.
+  - The tests file still has the duplicate-`"CSCI 1970"` fixtures.
+  - Known style problems in `requirements-2-code.arr`: `bool-to-num` is unused, there's
+    `.get(0)` in `core-cs`, and `.{0}` tuple access in `four-add`.
 - Next: rebuild the suite-P fixtures with distinct courses (see Feedback triage), then cluster 1.
 - Cleanup: the rename pushed 19 lines of `requirements-2-tests.arr` past 100 characters. Rewrap
   them. The starter's own comment lines are also over 100; leave those as they are.
