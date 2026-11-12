@@ -45,6 +45,8 @@ Reference files:
   call our old function name, `check-reqs`.
 - `context/feedback-suite-P.md`: how our suite (suite-P) did against 18 implementations.
 - `scratch/`: local experiments only. Nothing here is submitted.
+- `context/<starter folder>/`: the three Req 2 browser starter files. Copy their top sections
+  (above "DO NOT CHANGE") exactly, except swap the Drive includes for local `include file(...)`.
 
 Run tests with `pyret requirements-2-tests.arr` (pyret-npm). If the CLI rejects something, tell
 Luke instead of working around it in the lines above "DO NOT CHANGE".
