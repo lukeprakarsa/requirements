@@ -101,7 +101,11 @@ pyret-npm 0.1.28 is the newest release, and it has no `essentials2021` context. 
   (24 failed before the fix), and `well-formed-course` replaces `bueno`. 187 of 187 locally. All
   45 cluster 1 inputs from the report now get the spec's answer. Five of them, like `"CSCI 01900"`
   and `"CSCI 1011*T"`, are well-formed by the spec even though their suites expected `malformed`.
-- Next: cluster 2. Its first step is to treat a suffixed name as its first 9 characters (spec:
+- Cluster 2, part 1 on `worktree-cluster-2-irrelevant` (Nov 12): only courses that could count
+  toward some requirement (`concentration-course`) can make a roster `has-unnecessary`, and the
+  approved outside list is one constant with `"PHP  2630"` padded. 197 of 197 locally. On the
+  245 parseable impl-10 feedback tests, passes went from 38 to 98 with no regressions.
+- Next in cluster 2: treat a suffixed name as its first 9 characters (spec:
   "ignore everything past the digits"), so `[list: "CSCI 0190hahaha"]` counts as CSCI 0190.
   Cluster 1 only stopped flagging such names as malformed. Its suffix tests add the name to a
   completed roster, so they don't depend on this.

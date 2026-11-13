@@ -262,3 +262,22 @@ check "happy case for all-necessary":
   check-requirements(missing-tech-elect) is all-necessary
   check-requirements(missing-four-add) is all-necessary
 end
+
+check "all-necessary: courses outside the concentration are ignored":
+  check-requirements([list: "HIST 0150"]) is all-necessary
+  check-requirements([list: "PHP  0060", "MATH 0090", "APMA 1920"]) is all-necessary
+  check-requirements([list: "CSCI 0100", "CSCI 0190", "CSCI 0200"]) is all-necessary
+  check-requirements(missing-tech-elect + [list: "ENGL 0100"]) is all-necessary
+end
+
+check "has-unnecessary: an extra concentration course is still flagged among ignored ones":
+  check-requirements([list: "HIST 0150", "CSCI 0150", "CSCI 0170", "CSCI 0200"])
+    is has-unnecessary
+end
+
+check "approved outside courses: a padded three-letter department counts":
+  check-requirements(drop-course(exact-completed-roster-non-cs, "APMA 1690") + [list: "PHP  2630"])
+    is completed
+  check-requirements(drop-course(exact-completed-roster-non-cs, "CSCI 0320") + [list: "PHP  2630"])
+    is has-unnecessary
+end

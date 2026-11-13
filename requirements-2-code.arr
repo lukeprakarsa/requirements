@@ -16,6 +16,23 @@ DIGITS = "0123456789"
 DEPT-LENGTH = 4
 NUMBER-START = 5
 COURSE-NAME-LENGTH = 9
+SERIES-C-MIN-LEVEL = 200
+
+CALCULUS-COURSES = [list: "MATH 0100", "MATH 0170", "MATH 0190"]
+INTRO-COURSES = [list: "CSCI 0111", "CSCI 0150", "CSCI 0170", "CSCI 0190", "CSCI 0200"]
+MATH-FOUNDATION-COURSES = [list: "CSCI 0220", "MATH 1530"]
+LINEAR-ALGEBRA-COURSES = [list: "MATH 0520", "MATH 0540", "APMA 0260"]
+APPROVED-OUTSIDE-COURSES = [list: "APMA 1080", "APMA 1160", "APMA 1690", "APMA 1170",
+  "APMA 1200", "APMA 1210", "APMA 1360", "APMA 1650", "APMA 1655", "APMA 1660", "APMA 1670",
+  "APMA 1710", "APMA 1720", "APMA 1740", "APMA 1910", "APMA 1930W", "APMA 1930X", "APMA 2822B",
+  "PHP  2630", "PHP  2650", "CLPS 1211", "CLPS 1291", "CLPS 1342", "CLPS 1350", "CLPS 1491",
+  "CLPS 1492", "CLPS 1520", "CLPS 1950", "DATA 1030", "DATA 1340", "DATA 1080", "DEVL 1810",
+  "EEPS 1340", "EEPS 1720", "ECON 1490", "ECON 1870", "EDUC 1485", "ENGN 1010", "ENGN 1550",
+  "ENGN 1570", "ENGN 1580", "ENGN 1590", "ENGN 1600", "ENGN 1610", "ENGN 1630", "ENGN 1640",
+  "ENGN 1650", "ENGN 1660", "ENGN 1800", "ENGN 1931J", "ENGN 1931T", "ENGN 2520", "IAPA 1701A",
+  "IAPA 1801", "IAPA 1801I", "IAPA 1811", "MUSC 1210", "NEUR 1440", "NEUR 1660", "PHIL 1630",
+  "PHIL 1635", "PHIL 1675", "PHIL 1835", "PHIL 1855", "PHIL 1880", "PHYS 1590", "PHYS 1600",
+  "PHYS 2550", "PHP  1855", "PHP  1689", "PLCY 1702X", "ARTS 1550"]
 
 fun check-requirements(courses :: List<String>) -> Completion:
   doc: "https://cs.brown.edu/courses/csci0190/2026/reqs-2.html"
@@ -38,7 +55,7 @@ fun check-requirements(courses :: List<String>) -> Completion:
       | prereqs-sat and intro-math-sat and foundations-sat and 
         core-cs-sat and tech-elec-sat and four-add-sat then:
         completed
-      | not(is-empty(not-yet-seen(courses, all-seen))) then:
+      | not(is-empty(not-yet-seen(filter(concentration-course, courses), all-seen))) then:
         has-unnecessary
       | courses.length() == 0 then:
         all-necessary
@@ -130,6 +147,19 @@ check "well-formed: empty roster is fine, one bad name spoils the roster":
   well-formed([list: "MATH 0100", "CSCI 0150", "MATH0100", "PHP  0060"]) is false
 end
 
+fun concentration-course(course :: String) -> Boolean:
+  doc: "determines if course could count toward some concentration requirement"
+  (CALCULUS-COURSES + INTRO-COURSES + MATH-FOUNDATION-COURSES + LINEAR-ALGEBRA-COURSES
+    + APPROVED-OUTSIDE-COURSES).member(course)
+  or cs-at-least(course, SERIES-C-MIN-LEVEL)
+end
+
+check "concentration-course: named intro courses and approved outside courses count":
+  concentration-course("CSCI 0190") is true
+  concentration-course("CSCI 0100") is false
+  concentration-course("PHP  2630") is true
+end
+
 fun not-yet-seen(roster :: List<String>, seen :: List<String>) -> List<String>:
   doc: "gives a list out of courses in roster that are not yet seen"
   filter(lam(c): not(seen.member(c)) end, roster)
@@ -144,8 +174,7 @@ end
 
 fun prereqs(roster :: List<String>, seen :: List<String>) -> {Boolean; List<String>}:
   doc: "determines if roster satisfies prequisites"
-  courses-needed = [list: "MATH 0100", "MATH 0170", "MATH 0190"]
-  prereqs-in-roster = filter(lam(c): roster.member(c) end, courses-needed)
+  prereqs-in-roster = filter(lam(c): roster.member(c) end, CALCULUS-COURSES)
   cases (List) prereqs-in-roster:
     | empty => {false; seen}
     | link(_, _) => {true; prereqs-in-roster}
@@ -481,18 +510,6 @@ fun use-non-cs-1000(all-1000 :: List<String>, num-used :: Number, used-apma-165x
   -> List<String>:
   doc: "returns list of 1000 level non-CS courses that can be used for four-add"
 
-  eligible-courses = [list: "APMA 1080", "APMA 1160", "APMA 1690", "APMA 1170", "APMA 1200", 
-    "APMA 1210", "APMA 1360", "APMA 1650", "APMA 1655", "APMA 1660", "APMA 1670", "APMA 1710", 
-    "APMA 1720", "APMA 1740", "APMA 1910", "APMA 1930W", "APMA 1930X", "APMA 2822B", "PHP 2630",
-    "PHP 2650", "CLPS 1211", "CLPS 1291", "CLPS 1342", "CLPS 1350", "CLPS 1491", "CLPS 1492", 
-    "CLPS 1520", "CLPS 1950", "DATA 1030", "DATA 1340", "DATA 1080", "DEVL 1810", "EEPS 1340", 
-    "EEPS 1720", "ECON 1490", "ECON 1870", "EDUC 1485", "ENGN 1010", "ENGN 1550", "ENGN 1570", 
-    "ENGN 1580", "ENGN 1590", "ENGN 1600", "ENGN 1610", "ENGN 1630", "ENGN 1640", "ENGN 1650", 
-    "ENGN 1660", "ENGN 1800", "ENGN 1931J", "ENGN 1931T", "ENGN 2520", "IAPA 1701A", "IAPA 1801", 
-    "IAPA 1801I", "IAPA 1811", "MUSC 1210", "NEUR 1440", "NEUR 1660", "PHIL 1630", "PHIL 1635", 
-    "PHIL 1675", "PHIL 1835", "PHIL 1855", "PHIL 1880", "PHYS 1590", "PHYS 1600", "PHYS 2550", 
-    "PHP 1855", "PHP 1689", "PLCY 1702X", "ARTS 1550"]
-
   cases (List) all-1000:
     | empty => empty
     | link(f, r) =>
@@ -504,7 +521,7 @@ fun use-non-cs-1000(all-1000 :: List<String>, num-used :: Number, used-apma-165x
           else:
             link(f, use-non-cs-1000(r, num-used + 1, true))
           end
-        | eligible-courses.member(f) and (num-used < 3) then:
+        | APPROVED-OUTSIDE-COURSES.member(f) and (num-used < 3) then:
           link(f, use-non-cs-1000(r, num-used + 1, used-apma-165x))
         | otherwise:
           use-non-cs-1000(r, num-used, used-apma-165x)
@@ -513,20 +530,8 @@ fun use-non-cs-1000(all-1000 :: List<String>, num-used :: Number, used-apma-165x
 end
 
 check "use-non-cs-1000":
-  eligible-courses = [list: "APMA 1080", "APMA 1160", "APMA 1690", "APMA 1170", "APMA 1200", 
-    "APMA 1210", "APMA 1360", "APMA 1650", "APMA 1655", "APMA 1660", "APMA 1670", "APMA 1710", 
-    "APMA 1720", "APMA 1740", "APMA 1910", "APMA 1930W", "APMA 1930X", "APMA 2822B", "PHP 2630",
-    "PHP 2650", "CLPS 1211", "CLPS 1291", "CLPS 1342", "CLPS 1350", "CLPS 1491", "CLPS 1492", 
-    "CLPS 1520", "CLPS 1950", "DATA 1030", "DATA 1340", "DATA 1080", "DEVL 1810", "EEPS 1340", 
-    "EEPS 1720", "ECON 1490", "ECON 1870", "EDUC 1485", "ENGN 1010", "ENGN 1550", "ENGN 1570", 
-    "ENGN 1580", "ENGN 1590", "ENGN 1600", "ENGN 1610", "ENGN 1630", "ENGN 1640", "ENGN 1650", 
-    "ENGN 1660", "ENGN 1800", "ENGN 1931J", "ENGN 1931T", "ENGN 2520", "IAPA 1701A", "IAPA 1801", 
-    "IAPA 1801I", "IAPA 1811", "MUSC 1210", "NEUR 1440", "NEUR 1660", "PHIL 1630", "PHIL 1635", 
-    "PHIL 1675", "PHIL 1835", "PHIL 1855", "PHIL 1880", "PHYS 1590", "PHYS 1600", "PHYS 2550", 
-    "PHP 1855", "PHP 1689", "PLCY 1702X", "ARTS 1550"]
-
-  use-non-cs-1000(eligible-courses, 3, false) is empty
-  use-non-cs-1000(eligible-courses, 1, false) is [list: "APMA 1080", "APMA 1160"]
+  use-non-cs-1000(APPROVED-OUTSIDE-COURSES, 3, false) is empty
+  use-non-cs-1000(APPROVED-OUTSIDE-COURSES, 1, false) is [list: "APMA 1080", "APMA 1160"]
   use-non-cs-1000([list: "APMA 1650", "CLPS 1342"], 2, true) is [list: "CLPS 1342"]
   use-non-cs-1000([list: "APMA 1655", "APMA 1650"], 1, false) is [list: "APMA 1655"]
 end
