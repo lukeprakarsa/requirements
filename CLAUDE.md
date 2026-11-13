@@ -60,7 +60,8 @@ Reference files:
 - `context/feedback-impl-10.md`: how our implementation (impl-10) did against 18 suites. Its tests
   call our old function name, `check-reqs`.
 - `context/feedback-suite-P.md`: how our suite (suite-P) did against 18 implementations.
-- `scratch/`: local experiments only. Nothing here is submitted.
+- `scratch/`: local experiments only. Nothing here is submitted. `scratch/feedback.py` runs the
+  local tests and the feedback-report checks (see "Running the tests").
 - `context/<starter folder>/`: the three Req 2 browser starter files. Copy their top sections
   (above "DO NOT CHANGE") exactly, except swap the Drive includes for local `include file(...)`.
 
@@ -70,17 +71,27 @@ pyret-npm 0.1.28 is the newest release, and it has no `essentials2021` context. 
 `pyret requirements-2-tests.arr` fails with "Could not find builtin module essentials2021".
 
 - The real check is Luke pasting the files into the browser starter. He does this himself.
-- For a quick local check, copy `reqs-common.arr` and the three `requirements-2-*.arr` files into
-  a temp folder (`$CLAUDE_JOB_DIR/tmp` in background sessions). Change line 1 of the three copies
-  to `use context starter2024` and run `pyret requirements-2-tests.arr` in that folder. Never
-  change the context line in the real files. After cluster 1 (Nov 12) the tests file gave 187
-  of 187.
+- For a quick local check, run `python3 -I scratch/feedback.py local` from the repo root (add
+  `requirements-2-code.arr` to run the helper tests). It copies `reqs-common.arr` and the three
+  `requirements-2-*.arr` files into a temp folder (`$CLAUDE_JOB_DIR/tmp` in background sessions),
+  changes line 1 of the three copies to `use context starter2024`, and runs `pyret`. Never
+  change the context line in the real files. After cluster 2 (Nov 13): tests file 213 of 213,
+  code file 105 of 105.
+- `scratch/feedback.py run REV OUT.json` runs every runnable test from
+  `context/feedback-impl-10.md` against the code at a commit (or `WORKTREE`); `compare` lists the
+  results that changed between two runs and flags regressions; `show` lists failures. 249 of the
+  report's tests are runnable (7 call suite helpers). Passes: 37 before cluster 2 (df23cd9), 97
+  after part 1 (0350760), 139 after part 2 (4537f3a). The report holds only tests impl-10 failed,
+  and some contradict the spec or the decisions log, so a failure there is evidence to weigh, not
+  a bug by itself. Run it before and after each change to catch regressions. The generated check
+  file stays in the temp folder: it holds every report test, so never copy it into `scratch/` or
+  the tests file.
 - Don't use `essentials2020` for this: it has no `sort` function, and the code calls `sort` 4
   times. `essentials2021` has it (confirmed in the browser).
 - If the CLI rejects something else, tell Luke instead of working around it in the lines above
   "DO NOT CHANGE".
 
-## Status (updated Nov 12)
+## Status (updated Nov 13)
 
 - The switch to the Req 2 layout is done and merged into `main` (Nov 12, fast-forward from
   `worktree-req2-layout`). Luke ran commit 2b16d27 in the browser starter, and every test passed.
@@ -89,11 +100,15 @@ pyret-npm 0.1.28 is the newest release, and it has no `essentials2021` context. 
 - Background sessions create worktrees from `origin/main`. If `origin/main` doesn't have the
   suite-P fixture rebuild (commit 8ac2c24: no `"CSCI 1970", "CSCI 1970"` in
   `requirements-2-tests.arr`), Luke hasn't merged and pushed it yet: ask him to.
-- Not ready to submit. The code is still the Req 1 implementation, so everything below has to be
-  done first:
-  - Clusters 2 to 5 aren't fixed. Cluster 1 is done (below).
+- Not ready to submit. Everything below has to be done first:
+  - Clusters 3 to 5 aren't fixed. Clusters 1 and 2 are done (below).
   - Known style problems in `requirements-2-code.arr`: `bool-to-num` is unused, there's
-    `.get(0)` in `core-cs`, and `.{0}` tuple access in `four-add`.
+    `.get(0)` in `core-cs`, and `.{0}` tuple access in `four-add`. Also seen during cluster 2:
+    literal 200, 1000, 3, 4 and 5 in `core-cs`, `tech-elec`, `four-add`, `use-cs-1000` and
+    `use-non-cs-1000` (constants like `ONE-THOUSAND-LEVEL` exist now); the
+    `trimmed-courses.length() == 0` branch in `check-requirements` does the same as
+    `otherwise`; `tech-elect-seen` is misspelled; `link(f,r)` lacks a space after the comma;
+    36 lines in the code file and 8 in the tests file end in spaces.
 - Suite-P fixtures rebuilt on `worktree-suite-p-fixtures` (Nov 12): the second `"CSCI 1970"` is now
   `"CSCI 1973"` (Bulletin footnote 4), and the two `four-add` combination tests became
   "one 197x course plus `CSCI 1005`". 141 of 141 locally. Luke confirmed the swap.
@@ -112,20 +127,20 @@ pyret-npm 0.1.28 is the newest release, and it has no `essentials2021` context. 
   decisions (CSCI 0190 path extra slot, 3000+) or on the non-technical cap of 3.
 - Luke confirmed (Nov 13) that MATH 1530 can be an outside elective when CSCI 0220 is the math
   foundation; tests for it are in the "approved outside courses" check blocks.
-- Luke ran 372395b in the browser starter (Nov 13): every test passed. Cluster 2 is ready to
-  push and merge into `main`, so cluster 3 can branch from `origin/main`.
+- Luke ran 372395b in the browser starter (Nov 13): every test passed. Cluster 2 was pushed and
+  fast-forwarded into `main` (4537f3a, Nov 13).
 - Next: cluster 3. Start with CSCI 0300 and CSCI 0330 (decided Nov 13: only one counts
   anywhere). The code lets 0330 be the Series C extra next to 0300 (suite-Q line 403 returns
   `completed` because of it), and `core-cs` sets aside a course numbered 200 or above as the
   extra even with no CSCI 0190, so `[list: "CSCI 0300", "CSCI 0330"]` returns `all-necessary`.
 - `NON-TECHNICAL-COURSES` keeps the Handbook's non-CS entries (APMA 1910, DEVL 1810, IAPA 1701,
   IAPA 1801, PLCY 1702), but the code only checks it against CSCI courses, so they never matter.
-  Whether they count toward the cap of 3 is an open question for the style pass or Ed.
+  Whether they count toward the cap of 3 is an open decisions-log item.
 - Done Nov 12: every line of the three submitted files is 100 characters or fewer. Luke wrapped
   the starter's long comment lines under "DO NOT CHANGE" in the tests and common files.
 - Before submitting: a final style-guide pass over every line of all three files, against every
   rule in the style guide below. Don't assume the Req 1 code is clean: Luke says it has style
-  problems beyond the three listed above, and wants to see whether Claude finds them. Report
+  problems beyond those listed above, and wants to see whether Claude finds them. Report
   them to Luke before fixing.
 
 ## Spec facts that settle disputes (Req 1 handout)
@@ -148,14 +163,15 @@ pyret-npm 0.1.28 is the newest release, and it has no `essentials2021` context. 
 Implementation impl-10 failed 258 of 1378 tests. "Strong" below means at least 13 of the other 17
 implementations passed the test.
 
-1. **Malformed check is wrong in both directions.** 45 tests (40 strong) expect `malformed` and we
-   return something else, for inputs like `"CSCI-0190"`, `"C5CI 0190"`, `"1234 0190"`,
-   `"CSCI\t0190"`, `" PHP 2630"`, `"CS I 0190"` and `"CSCI 1.50"`. We also return `malformed` for
-   names with text after the digits, which the spec says to ignore.
-2. **Irrelevant courses are counted as unnecessary.** Most of the 81 tests (57 strong) that expect
-   `all-necessary` while we return `has-unnecessary`. Examples are `[list: "HIST 0150"]`,
-   `"MATH 9999"`, `"PHP  0060"` and suffixed codes like `"CSCI 0190A"`. We also fail to recognize
-   `"PHP  2630"` as an approved outside course.
+1. **(Done Nov 12.) Malformed check is wrong in both directions.** 45 tests (40 strong)
+   expect `malformed` and we return something else, for inputs like `"CSCI-0190"`,
+   `"C5CI 0190"`, `"1234 0190"`, `"CSCI\t0190"`, `" PHP 2630"`, `"CS I 0190"` and
+   `"CSCI 1.50"`. We also return `malformed` for names with text after the digits, which the
+   spec says to ignore.
+2. **(Done Nov 12–13.) Irrelevant courses are counted as unnecessary.** Most of the 81 tests
+   (57 strong) that expect `all-necessary` while we return `has-unnecessary`. Examples are
+   `[list: "HIST 0150"]`, `"MATH 9999"`, `"PHP  0060"` and suffixed codes like `"CSCI 0190A"`.
+   We also fail to recognize `"PHP  2630"` as an approved outside course.
 3. **Redundancy inside a pick-one group is missed.** 56 tests (29 strong) expect `has-unnecessary`
    and we return `all-necessary`. The core cases are `MATH 0100` with `MATH 0170`, and
    `CSCI 0300` with `CSCI 0330`.
@@ -229,6 +245,16 @@ Each line notes how the other implementations split.
       `IAPA 1801` is has-unnecessary) passed on 3 of 17, suite-H line 205 on 4, suite-Q line 232
       on 3. Ed #711 doesn't settle it. If shared: add ENGN 1800, and the suffix rule would make
       the trimmed IAPA 1701, IAPA 1801, PLCY 1702 and ENGN 1931 technical. Luke may ask on Ed.
+- [ ] Can CSCI 1970 or CSCI 1973 fill a technical elective slot? The technical row asks for
+      "Five CSCI courses at the 1000 level", and footnote 3 excludes only non-technical courses.
+      But the additional electives row lists "CSCI 1970 Individual Independent Study, or
+      CSCI 1973 Independent Study" (footnote 4: "Up to two uses of CSCI 1970 or CSCI 1973"), and
+      the Handbook says 1970 "will count as an additional CS course under our degree
+      requirements". Our code lets them be technical (`tech-elec` doesn't exclude them). On
+      suite-E line 224, which completes only if CSCI 1970 is technical, 11 of 17 returned
+      `completed` and 5 passed its `has-unnecessary`. Until settled, write no tests that depend
+      on it (a test built on `exact-completed-roster` can pass only because 1970 or 1973 fills a
+      technical slot, as the first `CSCI 1952B` test did on Nov 12).
 - [ ] Can CSCI courses numbered 3000 or above fill elective slots? They are valid courses (Req 1
       handout: "assume every course listed is a valid one") and can be the Series C extra course
       ("numbered 200 or above"), as our line 111 test uses `CSCI 3000`. But the elective rows
@@ -251,6 +277,16 @@ Each line notes how the other implementations split.
 - When Claude creates a branch Luke will keep working on, switch Luke's main checkout to it.
   Remove any worktree holding the branch first, since git won't check out a branch that's in use
   in another worktree. Luke pushes; Claude doesn't (the permission check blocked it on Nov 12).
+- To change a branch that is checked out in Luke's main checkout (background sessions can't edit
+  there): in the main checkout run `git checkout main`, then
+  `git worktree add .claude/worktrees/<name> <branch>`, and enter it with EnterWorktree's `path`.
+  When done, ExitWorktree with `keep` (`remove` deletes the branch too), then
+  `git worktree remove .claude/worktrees/<name>` and `git checkout <branch>` in the main checkout.
+- Worktree sessions refuse a compound shell command (`&&`, pipes, `cd`) when they can't check
+  that it stays inside the worktree. Split it into plain commands, or write a script to
+  `$CLAUDE_JOB_DIR/tmp` and run that.
+- Every feedback-report number in this file should come from `scratch/feedback.py`, run before
+  and after the change.
 - New code must not add style violations. The style guide applies only to the three submitted
   `.arr` files (not `reqs-common.arr`, `scratch/` or CLAUDE.md). Before each commit, check every
   added line against each style-guide rule, and every line of each touched file for length,
