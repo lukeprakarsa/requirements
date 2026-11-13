@@ -110,9 +110,8 @@ pyret-npm 0.1.28 is the newest release, and it has no `essentials2021` context. 
   `approved-outside-course` adds every 1000-level MATH course. 211 of 211 locally; feedback
   passes 97 to 139, no regressions. Cluster 2 is done: the 7 tests left in it rest on open
   decisions (CSCI 0190 path extra slot, 3000+) or on the non-technical cap of 3.
-- Side effect to settle: since MATH 1530 is a 1000-level MATH course, the code now lets it be an
-  outside elective when CSCI 0220 is the math foundation (the first open decisions-log item).
-  Luke to confirm. No test in our suite depends on it.
+- Luke confirmed (Nov 13) that MATH 1530 can be an outside elective when CSCI 0220 is the math
+  foundation; tests for it are in the "approved outside courses" check blocks.
 - Seen in passing for cluster 3: the code lets CSCI 0330 fill the Series C extra slot alongside
   CSCI 0300 (suite-Q line 403 now returns `completed` because of it).
 - `NON-TECHNICAL-COURSES` keeps the Handbook's non-CS entries (APMA 1910, DEVL 1810, IAPA 1701,
@@ -178,8 +177,9 @@ Our test suite, suite-P, has two problems:
 
 Each line notes how the other implementations split.
 
-- [ ] Can MATH 1530 count as an additional elective when CSCI 0220 is the math foundation?
-      `[list: "CSCI 0220", "MATH 1530"] is all-necessary`: 13 of 17 agree.
+- [x] MATH 1530 can count as an additional elective (an approved outside course, toward the cap
+      of 3) when CSCI 0220 is the math foundation (Nov 13, Luke). It is a 1000-level MATH
+      course. `[list: "CSCI 0220", "MATH 1530"] is all-necessary`: 13 of 17 agree.
 - [ ] On the CSCI 0190 path, what fills the extra-course slot? Can CSCI 0220 fill it while
       MATH 1530 is the math foundation? Suites B, O, Q and R split around 10 to 12 of 17.
 - [x] Non-technical CSCI courses (Nov 12, from the Bulletin table): none can fill a technical

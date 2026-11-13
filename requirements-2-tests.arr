@@ -307,3 +307,10 @@ check "approved outside courses: any 1000-level MATH course counts, up to the ca
     is has-unnecessary
   check-requirements([list: "MATH 2010"]) is all-necessary
 end
+
+check "approved outside courses: MATH 1530 is one when CSCI 0220 is the math foundation":
+  check-requirements(drop-course(exact-completed-roster-non-cs, "APMA 1690") + [list: "CSCI 0220"])
+    is completed
+  check-requirements(drop-course(exact-completed-roster-non-cs, "CSCI 0320") + [list: "CSCI 0220"])
+    is has-unnecessary
+end
