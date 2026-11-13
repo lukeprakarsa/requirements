@@ -17,6 +17,8 @@ DEPT-LENGTH = 4
 NUMBER-START = 5
 COURSE-NAME-LENGTH = 9
 SERIES-C-MIN-LEVEL = 200
+ONE-THOUSAND-LEVEL = 1000
+TWO-THOUSAND-LEVEL = 2000
 
 CALCULUS-COURSES = [list: "MATH 0100", "MATH 0170", "MATH 0190"]
 INTRO-COURSES = [list: "CSCI 0111", "CSCI 0150", "CSCI 0170", "CSCI 0190", "CSCI 0200"]
@@ -24,15 +26,18 @@ MATH-FOUNDATION-COURSES = [list: "CSCI 0220", "MATH 1530"]
 LINEAR-ALGEBRA-COURSES = [list: "MATH 0520", "MATH 0540", "APMA 0260"]
 APPROVED-OUTSIDE-COURSES = [list: "APMA 1080", "APMA 1160", "APMA 1690", "APMA 1170",
   "APMA 1200", "APMA 1210", "APMA 1360", "APMA 1650", "APMA 1655", "APMA 1660", "APMA 1670",
-  "APMA 1710", "APMA 1720", "APMA 1740", "APMA 1910", "APMA 1930W", "APMA 1930X", "APMA 2822B",
-  "PHP  2630", "PHP  2650", "CLPS 1211", "CLPS 1291", "CLPS 1342", "CLPS 1350", "CLPS 1491",
-  "CLPS 1492", "CLPS 1520", "CLPS 1950", "DATA 1030", "DATA 1340", "DATA 1080", "DEVL 1810",
-  "EEPS 1340", "EEPS 1720", "ECON 1490", "ECON 1870", "EDUC 1485", "ENGN 1010", "ENGN 1550",
-  "ENGN 1570", "ENGN 1580", "ENGN 1590", "ENGN 1600", "ENGN 1610", "ENGN 1630", "ENGN 1640",
-  "ENGN 1650", "ENGN 1660", "ENGN 1800", "ENGN 1931J", "ENGN 1931T", "ENGN 2520", "IAPA 1701A",
-  "IAPA 1801", "IAPA 1801I", "IAPA 1811", "MUSC 1210", "NEUR 1440", "NEUR 1660", "PHIL 1630",
-  "PHIL 1635", "PHIL 1675", "PHIL 1835", "PHIL 1855", "PHIL 1880", "PHYS 1590", "PHYS 1600",
-  "PHYS 2550", "PHP  1855", "PHP  1689", "PLCY 1702X", "ARTS 1550"]
+  "APMA 1710", "APMA 1720", "APMA 1740", "APMA 1910", "APMA 1930", "APMA 2822", "PHP  2630",
+  "PHP  2650", "CLPS 1211", "CLPS 1291", "CLPS 1342", "CLPS 1350", "CLPS 1491", "CLPS 1492",
+  "CLPS 1520", "CLPS 1950", "DATA 1030", "DATA 1340", "DATA 1080", "DEVL 1810", "EEPS 1340",
+  "EEPS 1720", "ECON 1490", "ECON 1870", "EDUC 1485", "ENGN 1010", "ENGN 1550", "ENGN 1570",
+  "ENGN 1580", "ENGN 1590", "ENGN 1600", "ENGN 1610", "ENGN 1630", "ENGN 1640", "ENGN 1650",
+  "ENGN 1660", "ENGN 1800", "ENGN 1931", "ENGN 2520", "IAPA 1701", "IAPA 1801", "IAPA 1811",
+  "MUSC 1210", "NEUR 1440", "NEUR 1660", "PHIL 1630", "PHIL 1635", "PHIL 1675", "PHIL 1835",
+  "PHIL 1855", "PHIL 1880", "PHYS 1590", "PHYS 1600", "PHYS 2550", "PHP  1855", "PHP  1689",
+  "PLCY 1702", "ARTS 1550"]
+NON-TECHNICAL-COURSES = [list: "CSCI 1250", "CSCI 1280", "CSCI 1360", "CSCI 1370",
+  "CSCI 1800", "CSCI 1805", "CSCI 1860", "CSCI 1870", "CSCI 2002", "CSCI 2200", "APMA 1910",
+  "DEVL 1810", "IAPA 1701", "IAPA 1801", "PLCY 1702"]
 
 fun check-requirements(courses :: List<String>) -> Completion:
   doc: "https://cs.brown.edu/courses/csci0190/2026/reqs-2.html"
@@ -41,13 +46,14 @@ fun check-requirements(courses :: List<String>) -> Completion:
     malformed
   else:
     seen = empty
+    trimmed-courses = map(drop-suffix, courses)
 
-    {prereqs-sat; prereqs-seen} = prereqs(courses, seen)
-    {intro-math-sat; intro-math-seen} = intro-math(courses, prereqs-seen)
-    {foundations-sat; foundations-seen} = foundations(courses, intro-math-seen)
-    {core-cs-sat; core-cs-seen} = core-cs(courses, foundations-seen)
-    {tech-elec-sat; tech-elect-seen} = tech-elec(courses, core-cs-seen)
-    {four-add-sat; four-add-seen} = four-add(courses, tech-elect-seen)
+    {prereqs-sat; prereqs-seen} = prereqs(trimmed-courses, seen)
+    {intro-math-sat; intro-math-seen} = intro-math(trimmed-courses, prereqs-seen)
+    {foundations-sat; foundations-seen} = foundations(trimmed-courses, intro-math-seen)
+    {core-cs-sat; core-cs-seen} = core-cs(trimmed-courses, foundations-seen)
+    {tech-elec-sat; tech-elect-seen} = tech-elec(trimmed-courses, core-cs-seen)
+    {four-add-sat; four-add-seen} = four-add(trimmed-courses, tech-elect-seen)
     
     all-seen = tech-elect-seen + four-add-seen
 
@@ -55,9 +61,9 @@ fun check-requirements(courses :: List<String>) -> Completion:
       | prereqs-sat and intro-math-sat and foundations-sat and 
         core-cs-sat and tech-elec-sat and four-add-sat then:
         completed
-      | not(is-empty(not-yet-seen(filter(concentration-course, courses), all-seen))) then:
+      | not(is-empty(not-yet-seen(filter(concentration-course, trimmed-courses), all-seen))) then:
         has-unnecessary
-      | courses.length() == 0 then:
+      | trimmed-courses.length() == 0 then:
         all-necessary
       | otherwise: all-necessary
     end
@@ -147,11 +153,39 @@ check "well-formed: empty roster is fine, one bad name spoils the roster":
   well-formed([list: "MATH 0100", "CSCI 0150", "MATH0100", "PHP  0060"]) is false
 end
 
+fun drop-suffix(course :: String) -> String:
+  doc: "removes everything after the course number"
+  string-substring(course, 0, COURSE-NAME-LENGTH)
+end
+
+check "drop-suffix: keeps the first nine characters":
+  drop-suffix("CSCI 0190hahaha") is "CSCI 0190"
+  drop-suffix("CSCI 2951-S") is "CSCI 2951"
+  drop-suffix("PHP  2630") is "PHP  2630"
+end
+
+fun approved-outside-course(course :: String) -> Boolean:
+  doc: "determines if course is a non-CS course approved for the additional electives"
+  cases (Option) get-num(course):
+    | none => false
+    | some(num) =>
+      APPROVED-OUTSIDE-COURSES.member(course)
+      or ((get-dept(course) == "MATH") and (num >= ONE-THOUSAND-LEVEL)
+        and (num < TWO-THOUSAND-LEVEL))
+  end
+end
+
+check "approved-outside-course: the Handbook list, plus every 1000-level MATH course":
+  approved-outside-course("ENGN 1931") is true
+  approved-outside-course("MATH 1999") is true
+  approved-outside-course("MATH 2010") is false
+end
+
 fun concentration-course(course :: String) -> Boolean:
   doc: "determines if course could count toward some concentration requirement"
-  (CALCULUS-COURSES + INTRO-COURSES + MATH-FOUNDATION-COURSES + LINEAR-ALGEBRA-COURSES
-    + APPROVED-OUTSIDE-COURSES).member(course)
-  or cs-at-least(course, SERIES-C-MIN-LEVEL)
+  CALCULUS-COURSES.member(course) or INTRO-COURSES.member(course)
+  or MATH-FOUNDATION-COURSES.member(course) or LINEAR-ALGEBRA-COURSES.member(course)
+  or approved-outside-course(course) or cs-at-least(course, SERIES-C-MIN-LEVEL)
 end
 
 check "concentration-course: named intro courses and approved outside courses count":
@@ -306,15 +340,9 @@ end
 fun tech-elec(roster :: List<String>, seen :: List<String>) -> {Boolean; List<String>}:
   doc: "determines if the roster satisfies technical elective requirements"
 
-  cs-non-tech = [list: "CSCI 1250", "CSCI 1280", "CSCI 1360", "CSCI 1370", 
-    "CSCI 1800", "CSCI 1805", "CSCI 1860", "CSCI 1870", 
-    "CSCI 1952B", "CSCI 1952X", "CSCI 2002", "CSCI 2200", 
-    "CSCI 2402C", "CSCI 2952S", "CSCI 2999A", "APMA 1910", 
-    "DEVL 1810", "IAPA 1701A", "IAPA 1801", "PLCY 1702X"]
-
   valid-courses = not-yet-seen(roster, seen)
   all-1000-plus-tech = sort(filter(lam(course): cs-at-least(course, 1000) 
-      and not(cs-non-tech.member(course)) end, valid-courses))
+      and not(NON-TECHNICAL-COURSES.member(course)) end, valid-courses))
 
   has-five = all-1000-plus-tech.length() >= 5
   has-at-least-one = all-1000-plus-tech.length() > 0
@@ -470,21 +498,15 @@ fun use-cs-1000(all-1000 :: List<String>, num-non-tech :: Number)
   -> List<String>:
   doc: "returns list of 1000 level CS courses that can be used for four-add"
 
-  cs-non-tech = [list: "CSCI 1250", "CSCI 1280", "CSCI 1360", "CSCI 1370", 
-    "CSCI 1800", "CSCI 1805", "CSCI 1860", "CSCI 1870", 
-    "CSCI 1952B", "CSCI 1952X", "CSCI 2002", "CSCI 2200", 
-    "CSCI 2402C", "CSCI 2952S", "CSCI 2999A", "APMA 1910", 
-    "DEVL 1810", "IAPA 1701A", "IAPA 1801", "PLCY 1702X"]
-
   cases (List) all-1000:
     | empty => empty
     | link(f,r) => 
       ask:
         | (f == "CSCI 1970") or (f == "CSCI 1973") then:
           use-cs-1000(r, num-non-tech)
-        | cs-non-tech.member(f) and (num-non-tech < 3) then: 
+        | NON-TECHNICAL-COURSES.member(f) and (num-non-tech < 3) then:
           link(f, use-cs-1000(r, num-non-tech + 1))
-        | cs-non-tech.member(f) and (num-non-tech >= 3) then:
+        | NON-TECHNICAL-COURSES.member(f) and (num-non-tech >= 3) then:
           use-cs-1000(r, num-non-tech)
         | otherwise: 
           link(f, use-cs-1000(r, num-non-tech))
@@ -493,13 +515,8 @@ fun use-cs-1000(all-1000 :: List<String>, num-non-tech :: Number)
 end
 
 check "use-cs-1000":
-  cs-non-tech = [list: "CSCI 1250", "CSCI 1280", "CSCI 1360", "CSCI 1370", 
-    "CSCI 1800", "CSCI 1805", "CSCI 1860", "CSCI 1870", 
-    "CSCI 1952B", "CSCI 1952X", "CSCI 2002", "CSCI 2200", 
-    "CSCI 2402C", "CSCI 2952S", "CSCI 2999A", "APMA 1910", 
-    "DEVL 1810", "IAPA 1701A", "IAPA 1801", "PLCY 1702X"]
-  use-cs-1000(cs-non-tech, 3) is empty
-  use-cs-1000(cs-non-tech, 0) is [list: "CSCI 1250", "CSCI 1280", "CSCI 1360"]
+  use-cs-1000(NON-TECHNICAL-COURSES, 3) is empty
+  use-cs-1000(NON-TECHNICAL-COURSES, 0) is [list: "CSCI 1250", "CSCI 1280", "CSCI 1360"]
 
   use-cs-1000([list: "CSCI 1250", "CSCI 1000", "CSCI 1001"], 3) is [list: "CSCI 1000", "CSCI 1001"]
   use-cs-1000([list: "CSCI 1250", "CSCI 1000", "CSCI 1001"], 0) 
@@ -521,7 +538,7 @@ fun use-non-cs-1000(all-1000 :: List<String>, num-used :: Number, used-apma-165x
           else:
             link(f, use-non-cs-1000(r, num-used + 1, true))
           end
-        | APPROVED-OUTSIDE-COURSES.member(f) and (num-used < 3) then:
+        | approved-outside-course(f) and (num-used < 3) then:
           link(f, use-non-cs-1000(r, num-used + 1, used-apma-165x))
         | otherwise:
           use-non-cs-1000(r, num-used, used-apma-165x)

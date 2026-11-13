@@ -281,3 +281,29 @@ check "approved outside courses: a padded three-letter department counts":
   check-requirements(drop-course(exact-completed-roster-non-cs, "CSCI 0320") + [list: "PHP  2630"])
     is has-unnecessary
 end
+
+check "suffixes: a suffixed name counts as the course its first nine characters name":
+  check-requirements([list: "CSCI 0150", "CSCI 0170hahaha", "CSCI 0200"]) is has-unnecessary
+  check-requirements(drop-course(exact-completed-roster, "CSCI 0500") + [list: "CSCI 0500A"])
+    is completed
+end
+
+check "suffixes: an approved outside course counts under any suffix":
+  check-requirements(drop-course(exact-completed-roster-non-cs, "APMA 1690")
+      + [list: "ENGN 1931C"]) is completed
+  check-requirements(drop-course(exact-completed-roster-non-cs, "APMA 1690")
+      + [list: "APMA 1930W"]) is completed
+end
+
+check "suffixes: a suffixed non-technical CSCI course counts as technical":
+  check-requirements(drop-course(exact-completed-roster-non-tech, "CSCI 1004")
+      + [list: "CSCI 1952B"]) is completed
+end
+
+check "approved outside courses: any 1000-level MATH course counts, up to the cap of three":
+  check-requirements(drop-course(exact-completed-roster-non-cs, "APMA 1690") + [list: "MATH 1010"])
+    is completed
+  check-requirements(drop-course(exact-completed-roster-non-cs, "CSCI 0320") + [list: "MATH 1010"])
+    is has-unnecessary
+  check-requirements([list: "MATH 2010"]) is all-necessary
+end

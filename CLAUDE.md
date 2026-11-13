@@ -104,11 +104,20 @@ pyret-npm 0.1.28 is the newest release, and it has no `essentials2021` context. 
 - Cluster 2, part 1 on `worktree-cluster-2-irrelevant` (Nov 12): only courses that could count
   toward some requirement (`concentration-course`) can make a roster `has-unnecessary`, and the
   approved outside list is one constant with `"PHP  2630"` padded. 197 of 197 locally. On the
-  245 parseable impl-10 feedback tests, passes went from 38 to 98 with no regressions.
-- Next in cluster 2: treat a suffixed name as its first 9 characters (spec:
-  "ignore everything past the digits"), so `[list: "CSCI 0190hahaha"]` counts as CSCI 0190.
-  Cluster 1 only stopped flagging such names as malformed. Its suffix tests add the name to a
-  completed roster, so they don't depend on this.
+  249 parseable impl-10 feedback tests, passes went from 37 to 97 with no regressions.
+- Cluster 2, part 2 (Nov 12): `check-requirements` trims every name to 9 characters
+  (`drop-suffix`), the approved and non-technical lists hold trimmed names (Ed #321), and
+  `approved-outside-course` adds every 1000-level MATH course. 211 of 211 locally; feedback
+  passes 97 to 139, no regressions. Cluster 2 is done: the 7 tests left in it rest on open
+  decisions (CSCI 0190 path extra slot, 3000+) or on the non-technical cap of 3.
+- Side effect to settle: since MATH 1530 is a 1000-level MATH course, the code now lets it be an
+  outside elective when CSCI 0220 is the math foundation (the first open decisions-log item).
+  Luke to confirm. No test in our suite depends on it.
+- Seen in passing for cluster 3: the code lets CSCI 0330 fill the Series C extra slot alongside
+  CSCI 0300 (suite-Q line 403 now returns `completed` because of it).
+- `NON-TECHNICAL-COURSES` keeps the Handbook's non-CS entries (APMA 1910, DEVL 1810, IAPA 1701,
+  IAPA 1801, PLCY 1702), but the code only checks it against CSCI courses, so they never matter.
+  Whether they count toward the cap of 3 is an open question for the style pass or Ed.
 - Done Nov 12: every line of the three submitted files is 100 characters or fewer. Luke wrapped
   the starter's long comment lines under "DO NOT CHANGE" in the tests and common files.
 - Before submitting: a final style-guide pass over every line of all three files, against every
@@ -191,6 +200,15 @@ Each line notes how the other implementations split.
       `"CS   0190"` and `"C    1011-T"` are malformed. On suite-L line 30, 12 of 17 agreed.
 - [x] Approved outside courses: additional slots only, at most 3 ("Up to three approved
       1000-level courses outside of CS"), and only one of APMA 1650 and 1655 (Nov 12).
+- [x] Suffixes (Nov 12, Ed #321: "Count them as in"): a name counts as its first 9 characters.
+      An approved outside course stays approved under any suffix, so `"ENGN 1931C"` counts even
+      though the Handbook denies it, and the suffixed CSCI non-technical courses (1952B, 1952X,
+      2402C, 2952S, 2999A) count as technical (Req 1 handout: "treat all of them as technical").
+- [x] Every 1000-level MATH course is an approved outside course (Nov 12, Luke; Handbook list:
+      "Math: all 1000-level math courses"). 2000-level MATH courses are not.
+- [x] Two names that are the same course once trimmed (`"CSCI 2951A"`, `"CSCI 2951B"`) list one
+      course twice, which is outside the spec: write no tests for it (Nov 12, Luke). Suite-M
+      lines 228, 231 and 422 do this; 11 of 17 expected `all-necessary`.
 - [ ] Can CSCI courses numbered 3000 or above fill elective slots? They are valid courses (Req 1
       handout: "assume every course listed is a valid one") and can be the Series C extra course
       ("numbered 200 or above"), as our line 111 test uses `CSCI 3000`. But the elective rows
