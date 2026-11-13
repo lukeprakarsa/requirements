@@ -162,15 +162,20 @@ Each line notes how the other implementations split.
       CSCI 1951A got 4 of 17; EEPS 1340 with DATA 1340 got 4 of 17.
 - [x] 2000-level CSCI courses can fill technical slots unless they're non-technical (Ed #786:
       "If those 2000-level courses are also Technical, then yes."). 12 of 17 agreed.
-- [x] The Bulletin gives 5 technical and 4 additional elective slots, so once all 9 are filled, a
-      further elective-eligible course is unnecessary (Nov 12). Series C's extra course "may be
-      ... a 1000-level course", so on that path a tenth 1000-level course can still be needed.
+- [x] A course is unnecessary when it could count toward a requirement but every slot it could
+      fill is taken (Nov 12). 1000- and 2000-level CSCI courses can fill the 5 technical slots
+      (technical courses only), the 4 additional slots and, on Series C, the extra course ("may
+      be ... a 1000-level course"). So at most 9 of them can all count, or 10 on Series C.
 - [x] Approved outside courses: additional slots only, at most 3 ("Up to three approved
       1000-level courses outside of CS"), and only one of APMA 1650 and 1655 (Nov 12).
-- [ ] Can CSCI courses numbered 3000 or above count anywhere? The elective rows name only
-      "1000-level and 2000-level CSCI courses"; Series C's extra course is "numbered 200 or
-      above". suite-E line 223 (`CSCI 9999` is unnecessary) got 5 of 17; our line 111 uses
-      `CSCI 3000` as the Series C extra course.
+- [ ] Can CSCI courses numbered 3000 or above fill elective slots? They are valid courses (Req 1
+      handout: "assume every course listed is a valid one") and can be the Series C extra course
+      ("numbered 200 or above"), as our line 111 test uses `CSCI 3000`. But the elective rows
+      name only "1000-level and 2000-level CSCI courses". The majority treats them like other
+      upper-level CSCI courses: on suite-E line 223, 11 of 17 counted `CSCI 9999` as technical
+      (5 said additional only); suite-J line 199 (3000+ as technical) passed on 9 of 17. Our code
+      agrees (`cs-at-least` has no upper bound). Until settled, write no tests that depend on it;
+      Luke may ask on Ed.
 
 ## How to work with Luke
 
