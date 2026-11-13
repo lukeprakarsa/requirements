@@ -46,11 +46,12 @@ Reference files:
   problem setup.
 - `context/reqs-2-spec.md`: the Requirements 2 handout.
 - `context/bulletin-cs-scb.md`: the CS ScB requirements from the Brown Bulletin. These are the
-  source of truth for the requirements themselves.
+  source of truth for the requirements themselves. The page scrape lost the requirements table;
+  the Sc.B. table was transcribed from Luke's paste on Nov 12. The A.B. table isn't needed.
 - `context/handbook.md`: the Concentrator Handbook. Use it only where the Bulletin defers to it,
   and only the rules for the current requirements year, because it also covers older years.
-- `context/ed-clarifications.md`: staff answers from Ed. Treat these as part of the spec. (Not in
-  the repo as of Nov 12. If a question depends on an Ed post, ask Luke.)
+- `context/ed-clarifications.md`: staff answers from Ed, word for word. Treat these as part of
+  the spec. If a question depends on an Ed post that isn't in the file, ask Luke.
 - `context/feedback-impl-10.md`: how our implementation (impl-10) did against 18 suites. Its tests
   call our old function name, `check-reqs`.
 - `context/feedback-suite-P.md`: how our suite (suite-P) did against 18 implementations.
@@ -153,15 +154,23 @@ Each line notes how the other implementations split.
       `[list: "CSCI 0220", "MATH 1530"] is all-necessary`: 13 of 17 agree.
 - [ ] On the CSCI 0190 path, what fills the extra-course slot? Can CSCI 0220 fill it while
       MATH 1530 is the math foundation? Suites B, O, Q and R split around 10 to 12 of 17.
-- [ ] Is there a cap of 3 non-technical CSCI courses? `[list: "CSCI 1250", "CSCI 1280",
-      "CSCI 1360", "CSCI 1370"] is has-unnecessary` split 8 to 8.
+- [x] Non-technical CSCI courses (Nov 12, from the Bulletin table): none can fill a technical
+      slot (footnote 3: "None of these can be CS non-technical courses"), and at most 3 can fill
+      additional slots ("no more than three non-technical courses"). So
+      `[list: "CSCI 1250", "CSCI 1280", "CSCI 1360", "CSCI 1370"] is has-unnecessary`.
 - [ ] Which pairs are mutually exclusive? ENGN 2520 with CSCI 1420 split 8 to 9; DATA 1340 with
       CSCI 1951A got 4 of 17; EEPS 1340 with DATA 1340 got 4 of 17.
-- [ ] Can 2000-level CSCI courses be technical electives, or only additional electives? (4 to 5
-      of 17 said additional only.)
-- [ ] There are 5 technical and 4 additional elective slots. Is a tenth 1000-level CSCI course
-      unnecessary? (10 of 17 said yes.)
-- [ ] Is there a cap on approved outside (non-CSCI) electives, and what is it?
+- [x] 2000-level CSCI courses can fill technical slots unless they're non-technical (Ed #786:
+      "If those 2000-level courses are also Technical, then yes."). 12 of 17 agreed.
+- [x] The Bulletin gives 5 technical and 4 additional elective slots, so once all 9 are filled, a
+      further elective-eligible course is unnecessary (Nov 12). Series C's extra course "may be
+      ... a 1000-level course", so on that path a tenth 1000-level course can still be needed.
+- [x] Approved outside courses: additional slots only, at most 3 ("Up to three approved
+      1000-level courses outside of CS"), and only one of APMA 1650 and 1655 (Nov 12).
+- [ ] Can CSCI courses numbered 3000 or above count anywhere? The elective rows name only
+      "1000-level and 2000-level CSCI courses"; Series C's extra course is "numbered 200 or
+      above". suite-E line 223 (`CSCI 9999` is unnecessary) got 5 of 17; our line 111 uses
+      `CSCI 3000` as the Series C extra course.
 
 ## How to work with Luke
 

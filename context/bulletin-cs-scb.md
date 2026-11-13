@@ -90,7 +90,62 @@ additional information regarding our concentration requirements
 
 **Requirements for the Standard Track of the Sc.B. degree**
 
-[TABLE]
+<!-- Sc.B. table transcribed Nov 12, 2026 from Luke's copy-paste of the Bulletin page (the page
+scrape had reduced it to a placeholder). Course counts are in [brackets]; superscripts point to the
+footnotes below. The table's Capstone row is left out: it is out of scope for the assignment. -->
+
+**Prerequisites (0-3 courses)**
+
+Calculus prerequisite: students must complete or place out of second semester calculus.
+
+- MATH 0100 Single Variable Calculus, Part II
+- or MATH 0170 Single Variable Calculus, Part II (Accelerated)
+- or MATH 0190 Single Variable Calculus, Part II (Physics/Engineering)
+
+**Concentration Requirements**
+
+*Core-Computer Science:* Select one of the following introductory course Series: [2]
+
+- Series A: CSCI 0150 & CSCI 0200 (Introduction to Object-Oriented Programming and Computer
+  Science and Program Design with Data Structures and Algorithms)
+- Series B: CSCI 0170 & CSCI 0200 (Computer Science: An Integrated Introduction and Program
+  Design with Data Structures and Algorithms)
+- Series C: CSCI 0190 (Accelerated Introduction to Computer Science) AND an additional CS course
+  numbered 200 or above not otherwise used to satisfy a concentration requirement; this course
+  may be CSCI 0200, a Foundations course, or a 1000-level course.
+- Series D¹: CSCI 0111 & CSCI 0200 (Computing Foundations: Data and Program Design with Data
+  Structures and Algorithms)
+
+*Introductory Math Foundations*² [1]
+
+- CSCI 0220 Introduction to Discrete Structures and Probability
+- or MATH 1530 Abstract Algebra
+
+*Foundations Courses:* ScB students must take one course from each foundation area.
+
+Foundations Areas:
+
+- a. Algorithms/Theory Foundations [1]: CSCI 0500 Data Structures, Algorithms, and
+  Intractability: An Introduction
+- b. AI/Machine Learning/Data Science Foundations [1]: CSCI 0410 Foundations of AI and Machine
+  Learning
+- c. Systems Foundations, Concentration credit for only one of 300/330 [1]: CSCI 0300
+  Fundamentals of Computer Systems, or CSCI 0330 Introduction to Computer Systems
+
+*CSCI Technical Electives* [5]
+
+- Five CSCI courses at the 1000 level³
+
+*Four Additional Electives. These can include:* [4]
+
+- CSCI 0320 Introduction to Software Engineering
+- 1000-level and 2000-level CSCI courses (no more than three non-technical courses as defined in
+  concentration handbook)
+- Linear algebra (MATH 0520, MATH 0540, or APMA 0260). Concentration credit is only allowed for
+  one of these courses.
+- Up to three approved 1000-level courses outside of CS (see the concentration handbook for the
+  current list. Note that concentration credit is allowed for only one of APMA 1650, 1655).
+- CSCI 1970 Individual Independent Study⁴, or CSCI 1973 Independent Study
 
 ¹  
 Students wishing to go directly from
@@ -134,6 +189,8 @@ for more details.
 ### Requirements for the Standard Track of the A.B. degree
 
 [TABLE]
+
+<!-- A.B. table not captured. The assignment covers only the Sc.B., so it isn't needed. -->
 
 ¹  
 Students wishing to go directly from
