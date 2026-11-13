@@ -60,9 +60,14 @@ def stage(rev, folder):
 
 
 def pyret(folder, name):
-    done = subprocess.run(['pyret', name], cwd=folder, capture_output=True, text=True,
-                          timeout=900)
-    return done.stdout + done.stderr
+    """Run pyret with its output in a file. With a pipe, a compile server that pyret starts
+    inherits the pipe and keeps it open, so reading it never finishes."""
+    log = os.path.join(folder, name + '.out')
+    with open(log, 'w') as f:
+        subprocess.run(['pyret', name], cwd=folder, stdin=subprocess.DEVNULL, stdout=f,
+                       stderr=subprocess.STDOUT, timeout=900)
+    with open(log) as f:
+        return f.read()
 
 
 def parse_report():

@@ -88,6 +88,12 @@ pyret-npm 0.1.28 is the newest release, and it has no `essentials2021` context. 
   the tests file.
 - Don't use `essentials2020` for this: it has no `sort` function, and the code calls `sort` 4
   times. `essentials2021` has it (confirmed in the browser).
+- Never read `pyret` output through a pipe (`pyret f | grep`, `$(pyret f)`, Python
+  `capture_output`). When no compile server is running, `pyret` starts one, the server keeps the
+  pipe open, and the reader waits forever (Nov 13, after a restart). Send the output to a file
+  instead: `pyret f > out.txt 2>&1 < /dev/null`, as `scratch/feedback.py` now does.
+  `pyret --shutdown` stops the server.
+- Pyret rejects a name that shadows a built-in: a parameter named `text` doesn't compile.
 - If the CLI rejects something else, tell Luke instead of working around it in the lines above
   "DO NOT CHANGE".
 
@@ -98,8 +104,8 @@ pyret-npm 0.1.28 is the newest release, and it has no `essentials2021` context. 
   His commit 42d4538 renamed the parameter to `courses` but missed one `roster`. b50e783 fixes
   that and removes the copied `Completion`, and it passes 141 of 141 locally.
 - Background sessions create worktrees from `origin/main`. If `origin/main` doesn't have the
-  suite-P fixture rebuild (commit 8ac2c24: no `"CSCI 1970", "CSCI 1970"` in
-  `requirements-2-tests.arr`), Luke hasn't merged and pushed it yet: ask him to.
+  cluster 2 hand-off (commit 76b8e65: `scratch/feedback.py` exists), Luke hasn't merged and
+  pushed it yet: ask him to.
 - Not ready to submit. Everything below has to be done first:
   - Clusters 3 to 5 aren't fixed. Clusters 1 and 2 are done (below).
   - Known style problems in `requirements-2-code.arr`: `bool-to-num` is unused, there's
@@ -112,10 +118,11 @@ pyret-npm 0.1.28 is the newest release, and it has no `essentials2021` context. 
 - Suite-P fixtures rebuilt on `worktree-suite-p-fixtures` (Nov 12): the second `"CSCI 1970"` is now
   `"CSCI 1973"` (Bulletin footnote 4), and the two `four-add` combination tests became
   "one 197x course plus `CSCI 1005`". 141 of 141 locally. Luke confirmed the swap.
-- Cluster 1 fixed on `worktree-cluster-1-malformed` (Nov 12): 33 new tests in 6 check blocks
-  (24 failed before the fix), and `well-formed-course` replaces `bueno`. 187 of 187 locally. All
-  45 cluster 1 inputs from the report now get the spec's answer. Five of them, like `"CSCI 01900"`
-  and `"CSCI 1011*T"`, are well-formed by the spec even though their suites expected `malformed`.
+- Cluster 1 is done and merged into `main` (df23cd9, Nov 12), and Luke passed it in the browser
+  starter. 33 new tests in 6 check blocks (24 failed before the fix), and `well-formed-course`
+  replaces `bueno`. 187 of 187 locally. All 45 cluster 1 inputs from the report now get the
+  spec's answer. Five of them, like `"CSCI 01900"` and `"CSCI 1011*T"`, are well-formed by the
+  spec even though their suites expected `malformed`.
 - Cluster 2, part 1 on `worktree-cluster-2-irrelevant` (Nov 12): only courses that could count
   toward some requirement (`concentration-course`) can make a roster `has-unnecessary`, and the
   approved outside list is one constant with `"PHP  2630"` padded. 197 of 197 locally. On the
@@ -263,6 +270,12 @@ Each line notes how the other implementations split.
       (5 said additional only); suite-J line 199 (3000+ as technical) passed on 9 of 17. Our code
       agrees (`cs-at-least` has no upper bound). Until settled, write no tests that depend on it;
       Luke may ask on Ed.
+- [ ] Is an unlisted CSCI course numbered 200 to 999 (like `CSCI 0999`) unnecessary or ignored
+      when the student isn't on Series C? Its only possible slot is the Series C extra ("an
+      additional CS course numbered 200 or above"). `concentration-course` counts every CSCI
+      course from 200 up, so such a course makes the roster `has-unnecessary`. Suite-J line
+      226 expects `all-necessary` for a roster with `CSCI 0999` (and 3000+ courses); 3 of 17
+      passed it. Noticed Nov 13; write no tests that depend on it until settled.
 
 ## How to work with Luke
 
@@ -276,12 +289,19 @@ Each line notes how the other implementations split.
   sentences what changed and why.
 - When Claude creates a branch Luke will keep working on, switch Luke's main checkout to it.
   Remove any worktree holding the branch first, since git won't check out a branch that's in use
-  in another worktree. Luke pushes; Claude doesn't (the permission check blocked it on Nov 12).
+  in another worktree.
+- Push only after Luke has reviewed that exact state and said to push. On Nov 12 Claude pushed
+  a02c308 before Luke had checked it, and he called that out.
 - To change a branch that is checked out in Luke's main checkout (background sessions can't edit
   there): in the main checkout run `git checkout main`, then
   `git worktree add .claude/worktrees/<name> <branch>`, and enter it with EnterWorktree's `path`.
   When done, ExitWorktree with `keep` (`remove` deletes the branch too), then
   `git worktree remove .claude/worktrees/<name>` and `git checkout <branch>` in the main checkout.
+  If Luke has uncommitted edits there, save them first (`git diff > $CLAUDE_JOB_DIR/tmp/x.patch`)
+  and ask before folding them into a commit.
+- Ask Luke questions in plain words, with a concrete example of what each answer would change.
+  On Nov 12 he didn't follow a question about whether suffixed names should "count as the base
+  course".
 - Worktree sessions refuse a compound shell command (`&&`, pipes, `cd`) when they can't check
   that it stays inside the worktree. Split it into plain commands, or write a script to
   `$CLAUDE_JOB_DIR/tmp` and run that.
