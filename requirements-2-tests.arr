@@ -314,3 +314,19 @@ check "approved outside courses: MATH 1530 is one when CSCI 0220 is the math fou
   check-requirements(drop-course(exact-completed-roster-non-cs, "CSCI 0320") + [list: "CSCI 0220"])
     is has-unnecessary
 end
+
+check "has-unnecessary: only one calculus course counts toward the prerequisite":
+  check-requirements([list: "MATH 0100", "MATH 0170"]) is has-unnecessary
+  check-requirements([list: "MATH 0170", "MATH 0190"]) is has-unnecessary
+  check-requirements([list: "MATH 0100", "MATH 0170", "MATH 0190"]) is has-unnecessary
+  check-requirements(missing-foundations-a + [list: "MATH 0170"]) is has-unnecessary
+end
+
+check "has-unnecessary: only one of CSCI 0300 and CSCI 0330 counts, even as the extra course":
+  check-requirements([list: "CSCI 0330"]) is all-necessary
+  check-requirements([list: "CSCI 0190", "CSCI 0330"]) is all-necessary
+  check-requirements([list: "CSCI 0300", "CSCI 0330"]) is has-unnecessary
+  check-requirements([list: "CSCI 0500", "CSCI 0410", "CSCI 0330", "CSCI 0300"])
+    is has-unnecessary
+  check-requirements([list: "CSCI 0190", "CSCI 0300", "CSCI 0330"]) is has-unnecessary
+end

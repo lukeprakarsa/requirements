@@ -47,13 +47,14 @@ fun check-requirements(courses :: List<String>) -> Completion:
   else:
     seen = empty
     trimmed-courses = map(drop-suffix, courses)
+    countable-courses = keep-one-systems-course(trimmed-courses)
 
-    {prereqs-sat; prereqs-seen} = prereqs(trimmed-courses, seen)
-    {intro-math-sat; intro-math-seen} = intro-math(trimmed-courses, prereqs-seen)
-    {foundations-sat; foundations-seen} = foundations(trimmed-courses, intro-math-seen)
-    {core-cs-sat; core-cs-seen} = core-cs(trimmed-courses, foundations-seen)
-    {tech-elec-sat; tech-elect-seen} = tech-elec(trimmed-courses, core-cs-seen)
-    {four-add-sat; four-add-seen} = four-add(trimmed-courses, tech-elect-seen)
+    {prereqs-sat; prereqs-seen} = prereqs(countable-courses, seen)
+    {intro-math-sat; intro-math-seen} = intro-math(countable-courses, prereqs-seen)
+    {foundations-sat; foundations-seen} = foundations(countable-courses, intro-math-seen)
+    {core-cs-sat; core-cs-seen} = core-cs(countable-courses, foundations-seen)
+    {tech-elec-sat; tech-elect-seen} = tech-elec(countable-courses, core-cs-seen)
+    {four-add-sat; four-add-seen} = four-add(countable-courses, tech-elect-seen)
     
     all-seen = tech-elect-seen + four-add-seen
 
@@ -164,6 +165,22 @@ check "drop-suffix: keeps the first nine characters":
   drop-suffix("PHP  2630") is "PHP  2630"
 end
 
+fun keep-one-systems-course(roster :: List<String>) -> List<String>:
+  doc: "keeps at most one of CSCI 0300 and CSCI 0330 in roster"
+  if roster.member("CSCI 0300"):
+    filter(lam(course): not(course == "CSCI 0330") end, roster)
+  else:
+    roster
+  end
+end
+
+check "keep-one-systems-course: drops CSCI 0330 only when CSCI 0300 is there too":
+  keep-one-systems-course([list: "CSCI 0330", "CSCI 0190", "CSCI 0300"])
+    is [list: "CSCI 0190", "CSCI 0300"]
+  keep-one-systems-course([list: "CSCI 0330", "CSCI 0190"]) is [list: "CSCI 0330", "CSCI 0190"]
+  keep-one-systems-course(empty) is empty
+end
+
 fun approved-outside-course(course :: String) -> Boolean:
   doc: "determines if course is a non-CS course approved for the additional electives"
   cases (Option) get-num(course):
@@ -211,7 +228,7 @@ fun prereqs(roster :: List<String>, seen :: List<String>) -> {Boolean; List<Stri
   prereqs-in-roster = filter(lam(c): roster.member(c) end, CALCULUS-COURSES)
   cases (List) prereqs-in-roster:
     | empty => {false; seen}
-    | link(_, _) => {true; prereqs-in-roster}
+    | link(calculus, _) => {true; link(calculus, seen)}
   end
 end
 
@@ -219,6 +236,7 @@ check "prereqs":
   prereqs(empty, empty) is {false; empty}
   prereqs([list: "MATH 0100"], empty) is {true; [list: "MATH 0100"]}
   prereqs([list: "PHP  0060"], empty) is {false; empty}
+  prereqs([list: "MATH 0190", "MATH 0170"], empty) is {true; [list: "MATH 0170"]}
 end
 
 fun intro-math(roster :: List<String>, seen :: List<String>) -> {Boolean; List<String>}:
