@@ -17,17 +17,17 @@ end
 exact-completed-roster =
   [list: "MATH 0100", "CSCI 0150", "CSCI 0200", "MATH 1530", "CSCI 0500", "CSCI 0410",
     "CSCI 0300", "CSCI 1000", "CSCI 1001", "CSCI 1002", "CSCI 1003", "CSCI 1004",
-    "CSCI 0320", "MATH 0520", "CSCI 1970", "CSCI 1970"]
+    "CSCI 0320", "MATH 0520", "CSCI 1970", "CSCI 1973"]
 
 exact-completed-roster-cs19 =
   [list: "MATH 0100", "CSCI 0190", "CSCI 0200", "MATH 1530", "CSCI 0500", "CSCI 0410",
     "CSCI 0300", "CSCI 1000", "CSCI 1001", "CSCI 1002", "CSCI 1003", "CSCI 1004",
-    "CSCI 0320", "MATH 0520", "CSCI 1970", "CSCI 1970"]
+    "CSCI 0320", "MATH 0520", "CSCI 1970", "CSCI 1973"]
 
 exact-completed-roster-apma =
   [list: "MATH 0100", "CSCI 0190", "CSCI 0200", "MATH 1530", "CSCI 0500", "CSCI 0410",
     "CSCI 0300", "CSCI 1000", "CSCI 1001", "CSCI 1002", "CSCI 1003", "CSCI 1004",
-    "APMA 1650", "MATH 0520", "CSCI 1970", "CSCI 1970"]
+    "APMA 1650", "MATH 0520", "CSCI 1970", "CSCI 1973"]
 
 exact-completed-roster-non-cs =
   [list: "MATH 0100", "CSCI 0150", "CSCI 0200", "MATH 1530", "CSCI 0500", "CSCI 0410",
@@ -78,11 +78,11 @@ check "completed but unnecessary (should return completed anyways)":
   redundant-cs-courses = 
     [list: "MATH 0100", "CSCI 0150", "CSCI 0200", "MATH 1530", "CSCI 0500", "CSCI 0410", 
       "CSCI 0300", "CSCI 1000", "CSCI 1001", "CSCI 1002", "CSCI 1003", "CSCI 1004", "CSCI 1005", 
-      "CSCI 0320", "MATH 0520", "CSCI 1970", "CSCI 1970", "CSCI 0170"]
+      "CSCI 0320", "MATH 0520", "CSCI 1970", "CSCI 1973", "CSCI 0170"]
   check-requirements(redundant-cs-courses) is completed
   extra-non-cs-courses = [list: "MATH 0100", "CSCI 0150", "CSCI 0200", "MATH 1530", 
     "CSCI 0500", "CSCI 0410", "CSCI 0300", "CSCI 1000", "CSCI 1001", "CSCI 1002", "CSCI 1003", 
-    "CSCI 1004", "CSCI 1005", "CSCI 0320", "MATH 0520", "CSCI 1970", "CSCI 1970", "MATH 0170"]
+    "CSCI 1004", "CSCI 1005", "CSCI 0320", "MATH 0520", "CSCI 1970", "CSCI 1973", "MATH 0170"]
   check-requirements(extra-non-cs-courses) is completed
 end
 
@@ -114,9 +114,9 @@ end
 check "completed four-add combinations":
   check-requirements(drop-course(exact-completed-roster, "MATH 0520") + [list: "MATH 0540"]) is completed
   check-requirements(drop-course(exact-completed-roster, "MATH 0520") + [list: "APMA 0260"]) is completed
-  check-requirements(drop-course(exact-completed-roster, "CSCI 1970") + [list: "CSCI 1970", "CSCI 1973"]) 
+  check-requirements(drop-course(exact-completed-roster, "CSCI 1973") + [list: "CSCI 1005"])
     is completed
-  check-requirements(drop-course(exact-completed-roster, "CSCI 1970") + [list: "CSCI 1973", "CSCI 1973"]) 
+  check-requirements(drop-course(exact-completed-roster, "CSCI 1970") + [list: "CSCI 1005"])
     is completed
 end
 

@@ -84,10 +84,12 @@ pyret-npm 0.1.28 is the newest release, and it has no `essentials2021` context. 
 - Not ready to submit. The code is still the Req 1 implementation, so everything below has to be
   done first:
   - None of the feedback clusters are fixed.
-  - The tests file still has the duplicate-`"CSCI 1970"` fixtures.
   - Known style problems in `requirements-2-code.arr`: `bool-to-num` is unused, there's
     `.get(0)` in `core-cs`, and `.{0}` tuple access in `four-add`.
-- Next: rebuild the suite-P fixtures with distinct courses (see Feedback triage), then cluster 1.
+- Suite-P fixtures rebuilt on `worktree-suite-p-fixtures` (Nov 12): the second `"CSCI 1970"` is now
+  `"CSCI 1973"` (Bulletin footnote 4), and the two `four-add` combination tests became
+  "one 197x course plus `CSCI 1005`". 141 of 141 locally. Luke to review the swap.
+- Next: cluster 1.
 - Cleanup: the rename pushed 19 lines of `requirements-2-tests.arr` past 100 characters. Rewrap
   them. The starter's own comment lines are also over 100; leave those as they are.
 
