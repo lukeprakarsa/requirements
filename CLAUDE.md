@@ -37,8 +37,11 @@ in place of the Drive includes, so that `pyret` can run here:
   the starter's `provide *` and `provide-types *` lines.
 - Only the include lines differ from the browser starter. Luke pastes into the browser starter
   everything after each file's "DO NOT CHANGE" line and the starter's `#` comment lines under it.
-  In the code file that starts at `fun check-requirements` and replaces the starter's stub. In the
-  tests file it replaces the `check: 42 is 42 end` placeholder.
+  In the code file that starts at the course-name constants (`UPPERCASE-LETTERS` and so on) and
+  replaces the starter's stub. In the tests file it replaces the `check: 42 is 42 end` placeholder.
+- Top-level constants in the code file go above `fun check-requirements`. A non-function binding
+  between functions splits Pyret's group of mutually visible functions, and every function above
+  it then can't see the ones below it ("unbound" errors).
 
 Reference files:
 
@@ -85,14 +88,20 @@ pyret-npm 0.1.28 is the newest release, and it has no `essentials2021` context. 
   `requirements-2-tests.arr`), Luke hasn't merged and pushed it yet: ask him to.
 - Not ready to submit. The code is still the Req 1 implementation, so everything below has to be
   done first:
-  - None of the feedback clusters are fixed.
+  - Clusters 2 to 5 aren't fixed. Cluster 1 is done (below).
   - Known style problems in `requirements-2-code.arr`: `bool-to-num` is unused, there's
     `.get(0)` in `core-cs`, and `.{0}` tuple access in `four-add`.
 - Suite-P fixtures rebuilt on `worktree-suite-p-fixtures` (Nov 12): the second `"CSCI 1970"` is now
   `"CSCI 1973"` (Bulletin footnote 4), and the two `four-add` combination tests became
   "one 197x course plus `CSCI 1005`". 141 of 141 locally. Luke confirmed the swap.
-- Next: cluster 1 (see Feedback triage, and the course-name rules under Spec facts). Write failing
-  tests in `requirements-2-tests.arr` first, then fix the well-formedness check.
+- Cluster 1 fixed on `worktree-cluster-1-malformed` (Nov 12): 33 new tests in 6 check blocks
+  (24 failed before the fix), and `well-formed-course` replaces `bueno`. 184 of 184 locally. All
+  45 cluster 1 inputs from the report now get the spec's answer. Five of them, like `"CSCI 01900"`
+  and `"CSCI 1011*T"`, are well-formed by the spec even though their suites expected `malformed`.
+- Next: cluster 2. Its first step is to treat a suffixed name as its first 9 characters (spec:
+  "ignore everything past the digits"), so `[list: "CSCI 0190hahaha"]` counts as CSCI 0190.
+  Cluster 1 only stopped flagging such names as malformed. Its suffix tests add the name to a
+  completed roster, so they don't depend on this.
 - Cleanup: the rename pushed 17 lines of `requirements-2-tests.arr` past 100 characters. Rewrap
   them. The starter's own comment lines are also over 100; leave those as they are.
 
@@ -165,6 +174,10 @@ Each line notes how the other implementations split.
       fill is taken (Nov 12). 1000- and 2000-level CSCI courses can fill the 5 technical slots
       (technical courses only), the 4 additional slots and, on Series C, the extra course ("may
       be ... a 1000-level course"). So at most 9 of them can all count, or 10 on Series C.
+- [x] Department format (Nov 12, Luke, from Req 1 handout section 6: "All courses will have four
+      letters. Department names with only three letters (like PHP) will be padded with an extra
+      space"): the department is 4 uppercase letters, or 3 uppercase letters and one space. So
+      `"CS   0190"` and `"C    1011-T"` are malformed. On suite-L line 30, 12 of 17 agreed.
 - [x] Approved outside courses: additional slots only, at most 3 ("Up to three approved
       1000-level courses outside of CS"), and only one of APMA 1650 and 1655 (Nov 12).
 - [ ] Can CSCI courses numbered 3000 or above fill elective slots? They are valid courses (Req 1

@@ -11,6 +11,13 @@ include file("requirements-2-common.arr")
 #
 # You may write implementation-specific tests (e.g., of helper functions) in this file.
 
+# Course names: a 4-character department, a space, then 4 digits (Req 1 handout, section 4)
+UPPERCASE-LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+DIGITS = "0123456789"
+DEPT-LENGTH = 4
+NUMBER-START = 5
+COURSE-NAME-LENGTH = 9
+
 fun check-requirements(courses :: List<String>) -> Completion:
   doc: "https://cs.brown.edu/courses/csci0190/2026/reqs-2.html"
 
@@ -69,33 +76,61 @@ check "get-num":
   get-num("MATH0100") is none
 end
 
+fun all-chars-in(str :: String, allowed :: String) -> Boolean:
+  doc: "determines if every character of str appears in allowed"
+  string-explode(str).all(lam(char): string-contains(allowed, char) end)
+end
+
+check "all-chars-in":
+  all-chars-in("CSCI", UPPERCASE-LETTERS) is true
+  all-chars-in("CS I", UPPERCASE-LETTERS) is false
+  all-chars-in("", DIGITS) is true
+end
+
+fun well-formed-dept(dept :: String) -> Boolean:
+  doc: ```determines if dept is four uppercase letters, or three uppercase letters padded
+       with one space```
+  all-chars-in(dept, UPPERCASE-LETTERS)
+  or (all-chars-in(string-substring(dept, 0, DEPT-LENGTH - 1), UPPERCASE-LETTERS)
+    and (string-substring(dept, DEPT-LENGTH - 1, DEPT-LENGTH) == " "))
+end
+
+check "well-formed-dept":
+  well-formed-dept("CSCI") is true
+  well-formed-dept("PHP ") is true
+  well-formed-dept(" PHP") is false
+  well-formed-dept("CS  ") is false
+  well-formed-dept("C5CI") is false
+end
+
+fun well-formed-course(course :: String) -> Boolean:
+  doc: ```determines if course is a department, one space, and four digits, ignoring
+       anything after the digits```
+  (string-length(course) >= COURSE-NAME-LENGTH)
+  and well-formed-dept(string-substring(course, 0, DEPT-LENGTH))
+  and (string-substring(course, DEPT-LENGTH, NUMBER-START) == " ")
+  and all-chars-in(string-substring(course, NUMBER-START, COURSE-NAME-LENGTH), DIGITS)
+end
+
+check "well-formed-course":
+  well-formed-course("CSCI 0190") is true
+  well-formed-course("PHP  0060") is true
+  well-formed-course("CSCI 2951-S") is true
+  well-formed-course("CSCI 0190hahaha") is true
+  well-formed-course("CSCI-0190") is false
+  well-formed-course("CSCI 1.50") is false
+  well-formed-course("CSCI 019") is false
+end
+
 fun well-formed(roster :: List<String>) -> Boolean:
-  doc: "determines if all courses listed in roster are correctly formed"
-  cases (List) roster:
-    | empty => true
-    | link(_, _) =>
-      fold(lam(acc, c): ((bueno(c) and acc) 
-          and (c == string-to-upper(c))) end, true, roster)
-  end
+  doc: "determines if every course in roster is well-formed"
+  roster.all(well-formed-course)
 end
 
 check "well-formed":
   well-formed(empty) is true
-  well-formed([list: "MATH 0100", "CSCI 0150", "PHP  0060", "MATHMATH 0100"]) is false
   well-formed([list: "MATH 0100", "CSCI 0150", "PHP  0060"]) is true
-  well-formed([list: "mAtH 0100"]) is false
   well-formed([list: "MATH 0100", "CSCI 0150", "MATH0100", "PHP  0060"]) is false
-end
-
-fun bueno(course-id :: String) -> Boolean:
-  doc: "determines if a course if well formed"
-  is-some(get-num(course-id))
-end
-
-check "bueno":
-  bueno("MATH 0100") is true
-  bueno("MATHMATH 0100") is false
-  bueno("PHP  0060") is true
 end
 
 fun not-yet-seen(roster :: List<String>, seen :: List<String>) -> List<String>:

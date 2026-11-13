@@ -65,6 +65,58 @@ check "malformed":
   check-requirements([list: "CSCI 0190", "CSCIC 0190"]) is malformed
 end
 
+check "malformed: department is four uppercase letters, or three and a padding space":
+  check-requirements([list: "Csci 0190"]) is malformed
+  check-requirements([list: "C5CI 0190"]) is malformed
+  check-requirements([list: "1234 0190"]) is malformed
+  check-requirements([list: "CS#I 0190"]) is malformed
+  check-requirements([list: "CS I 0190"]) is malformed
+  check-requirements([list: "P HP 0060"]) is malformed
+  check-requirements([list: " PHP 0060"]) is malformed
+  check-requirements([list: "CS   0190"]) is malformed
+  check-requirements([list: "C    0190"]) is malformed
+  check-requirements([list: "     0190"]) is malformed
+end
+
+check "malformed: department and number are separated by exactly one space":
+  check-requirements([list: "CSCI-0190"]) is malformed
+  check-requirements([list: "CSCI_0190"]) is malformed
+  check-requirements([list: "CSCI\t0190"]) is malformed
+  check-requirements([list: "CSCI00190"]) is malformed
+  check-requirements([list: "CSCI  0190"]) is malformed
+  check-requirements([list: "PHP 00600"]) is malformed
+end
+
+check "malformed: course number is exactly four digits":
+  check-requirements([list: "CSCI 1.50"]) is malformed
+  check-requirements([list: "CSCI -190"]) is malformed
+  check-requirements([list: "CSCI +190"]) is malformed
+  check-requirements([list: "CSCI 1/20"]) is malformed
+  check-requirements([list: "CSCI 1e10"]) is malformed
+  check-requirements([list: "CSCI 019A"]) is malformed
+  check-requirements([list: "CSCI 019"]) is malformed
+  check-requirements([list: ""]) is malformed
+end
+
+check "malformed: one bad name makes the whole roster malformed":
+  check-requirements([list: "HIST 0150", "CSCI 1.50"]) is malformed
+  check-requirements(exact-completed-roster + [list: "CSCI-1000"]) is malformed
+  check-requirements(drop-course(exact-completed-roster, "CSCI 0320") + [list: "CSCI 0320"]
+      + [list: " PHP 0060"]) is malformed
+end
+
+check "well-formed: text after the four digits is ignored":
+  check-requirements(exact-completed-roster + [list: "CSCI 0190hahaha"]) is completed
+  check-requirements(exact-completed-roster + [list: "HIST 0150 extra"]) is completed
+  check-requirements(exact-completed-roster + [list: "CSCI 2951-S"]) is completed
+  check-requirements(exact-completed-roster + [list: "PHP  0060 lab"]) is completed
+  check-requirements(exact-completed-roster + [list: "ECON 0110 "]) is completed
+end
+
+check "well-formed: three-letter department padded with one space":
+  check-requirements(exact-completed-roster + [list: "PHP  2630"]) is completed
+end
+
 check "completed but malformed":
   check-requirements(drop-course(exact-completed-roster, "CSCI 1970") + [list: "csci 1970"]) is malformed
   check-requirements(drop-course(exact-completed-roster, "CSCI 1970") + [list: "CSCCC 1970"]) is malformed
