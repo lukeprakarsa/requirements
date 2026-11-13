@@ -17,7 +17,8 @@ that line; ours have it as line 1:
 - `requirements-2-tests.arr`: tests of `check-requirements` only, never of helpers or other
   implementation details.
 - `requirements-2-common.arr`: data bindings, such as test rosters, that both the code file and
-  the tests file use.
+  the tests file use. Test helpers such as `drop-course` live here too, each with its own check
+  block (Luke, Nov 12), so the tests file holds only tests of `check-requirements`.
 - `Completion` comes from the course's shared `requirements-2-definitions.arr` on Google Drive.
   In the browser starter, the `shared-gdrive` and `my-gdrive` include lines must stay exactly as
   given.
@@ -39,6 +40,7 @@ in place of the Drive includes, so that `pyret` can run here:
   everything after each file's "DO NOT CHANGE" line and the starter's `#` comment lines under it.
   In the code file that starts at the course-name constants (`UPPERCASE-LETTERS` and so on) and
   replaces the starter's stub. In the tests file it replaces the `check: 42 is 42 end` placeholder.
+  In the common file it's `drop-course` and its check block.
 - Top-level constants in the code file go above `fun check-requirements`. A non-function binding
   between functions splits Pyret's group of mutually visible functions, and every function above
   it then can't see the ones below it ("unbound" errors).
@@ -71,7 +73,8 @@ pyret-npm 0.1.28 is the newest release, and it has no `essentials2021` context. 
 - For a quick local check, copy `reqs-common.arr` and the three `requirements-2-*.arr` files into
   a temp folder (`$CLAUDE_JOB_DIR/tmp` in background sessions). Change line 1 of the three copies
   to `use context starter2024` and run `pyret requirements-2-tests.arr` in that folder. Never
-  change the context line in the real files. On Nov 12 this gave 141 of 141.
+  change the context line in the real files. After cluster 1 (Nov 12) the tests file gave 187
+  of 187.
 - Don't use `essentials2020` for this: it has no `sort` function, and the code calls `sort` 4
   times. `essentials2021` has it (confirmed in the browser).
 - If the CLI rejects something else, tell Luke instead of working around it in the lines above
@@ -95,15 +98,15 @@ pyret-npm 0.1.28 is the newest release, and it has no `essentials2021` context. 
   `"CSCI 1973"` (Bulletin footnote 4), and the two `four-add` combination tests became
   "one 197x course plus `CSCI 1005`". 141 of 141 locally. Luke confirmed the swap.
 - Cluster 1 fixed on `worktree-cluster-1-malformed` (Nov 12): 33 new tests in 6 check blocks
-  (24 failed before the fix), and `well-formed-course` replaces `bueno`. 184 of 184 locally. All
+  (24 failed before the fix), and `well-formed-course` replaces `bueno`. 187 of 187 locally. All
   45 cluster 1 inputs from the report now get the spec's answer. Five of them, like `"CSCI 01900"`
   and `"CSCI 1011*T"`, are well-formed by the spec even though their suites expected `malformed`.
 - Next: cluster 2. Its first step is to treat a suffixed name as its first 9 characters (spec:
   "ignore everything past the digits"), so `[list: "CSCI 0190hahaha"]` counts as CSCI 0190.
   Cluster 1 only stopped flagging such names as malformed. Its suffix tests add the name to a
   completed roster, so they don't depend on this.
-- Cleanup: the rename pushed 17 lines of `requirements-2-tests.arr` past 100 characters. Rewrap
-  them. The starter's own comment lines are also over 100; leave those as they are.
+- Done Nov 12: every line of the three submitted files is 100 characters or fewer. Luke wrapped
+  the starter's long comment lines under "DO NOT CHANGE" in the tests and common files.
 - Before submitting: a final style-guide pass over every line of all three files, against every
   rule in the style guide below. Don't assume the Req 1 code is clean: Luke says it has style
   problems beyond the three listed above, and wants to see whether Claude finds them. Report
@@ -206,10 +209,13 @@ Each line notes how the other implementations split.
 - When Claude creates a branch Luke will keep working on, switch Luke's main checkout to it.
   Remove any worktree holding the branch first, since git won't check out a branch that's in use
   in another worktree. Luke pushes; Claude doesn't (the permission check blocked it on Nov 12).
-- New code must not add style violations. Before each commit, check every added line against
-  each style-guide rule, and say in the summary that you did. Cluster 1's first commit
-  (639a3c4) shipped an unannotated `lam(char)`. Lambda parameters and results need
-  annotations too. It also had a test that dropped a course and added it straight back.
+- New code must not add style violations. The style guide applies only to the three submitted
+  `.arr` files (not `reqs-common.arr`, `scratch/` or CLAUDE.md). Before each commit, check every
+  added line against each style-guide rule, and every line of each touched file for length,
+  not just the added ones. Say in the summary that you did. Cluster 1 missed 16 existing lines
+  over 100 in the tests file and added two long triple-tick docstrings (Nov 12).
+- After a style fix, show Luke what changed and wait for him to confirm nothing is left before
+  pushing, even if he has already said to push once the style is sorted.
 - `scratch/feedback-check.arr` may hold tests taken from the feedback reports whose expected
   results agree with the spec and the decisions log. It is a local regression check only. Never
   copy those tests into `requirements-2-tests.arr`.
@@ -231,10 +237,13 @@ Each line notes how the other implementations split.
   - Name magic numbers as constants.
   - Use `ask` when there are more than 2 branches.
   - Give informative error messages.
-  - Use UpperCamelCase for types and lower-kebab-case for everything else.
+  - Use UpperCamelCase for types, ALL-CAPS for constants (`DEPT-LENGTH`), and lower-kebab-case
+    for everything else (Luke, Nov 12).
+  - Lambdas don't need annotations (Luke, Nov 12).
 - **Readability:**
-  - Every function has a `doc:` purpose statement saying what it does, not how, and it isn't
-    overly long.
+  - Every function has a `doc:` purpose statement saying what it does, not how. Keep it short,
+    one line where possible: long docstrings cost points (Luke, Nov 12). Let the examples show
+    the details.
   - Put each function right before its check block.
   - Give check blocks descriptive strings.
   - No unused code.
@@ -252,7 +261,10 @@ Each line notes how the other implementations split.
 - Every helper needs a docstring unless its purpose is obvious from its name, header or examples.
   Nontrivial helpers always need one.
 - Test `check-requirements` extensively in `requirements-2-tests.arr`. Give each helper 2 or 3
-  tests in `requirements-2-code.arr` that cover the edge cases the code depends on.
+  tests that cover the edge cases the code depends on: implementation helpers in
+  `requirements-2-code.arr`, test helpers (like `drop-course`) in `requirements-2-common.arr`.
+- Don't write comments in the three submitted files. Luke counts them as extraneous. Only the
+  starter's own comments stay.
 - **Allowed:** the core language, higher-order functions, our own data definitions, and the
   Number, String and Boolean builtins. The allowed libraries are lists, sets, pick, tables, option
   and either. Nothing else.

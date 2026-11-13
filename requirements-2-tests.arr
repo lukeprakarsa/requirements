@@ -7,12 +7,8 @@ include file("requirements-2-common.arr")
 
 # DO NOT CHANGE ANYTHING ABOVE THIS LINE
 #
-# Write your examples and tests in here. These should not be tests of implementation-specific details (e.g., helper functions).
-
-fun drop-course(roster :: List<String>, c :: String) -> List<String>:
-  doc: "removes a target course from roster"
-  filter(lam(course): not(course == c) end, roster)
-end
+# Write your examples and tests in here.
+# These should not be tests of implementation-specific details (e.g., helper functions).
 
 exact-completed-roster =
   [list: "MATH 0100", "CSCI 0150", "CSCI 0200", "MATH 1530", "CSCI 0500", "CSCI 0410",
@@ -117,12 +113,18 @@ check "well-formed: three-letter department padded with one space":
 end
 
 check "completed but malformed":
-  check-requirements(drop-course(exact-completed-roster, "CSCI 1970") + [list: "csci 1970"]) is malformed
-  check-requirements(drop-course(exact-completed-roster, "CSCI 1970") + [list: "CSCCC 1970"]) is malformed
-  check-requirements(drop-course(exact-completed-roster, "MATH 0520") + [list: "MATH0520"]) is malformed
-  check-requirements(drop-course(exact-completed-roster, "MATH 0520") + [list: "MATH XXXX"]) is malformed
-  check-requirements(drop-course(exact-completed-roster, "MATH 0520") + [list: "MATH 520"]) is malformed
-  check-requirements(drop-course(exact-completed-roster, "MATH 0520") + [list: "MATHH 0520"]) is malformed
+  check-requirements(drop-course(exact-completed-roster, "CSCI 1970") + [list: "csci 1970"])
+    is malformed
+  check-requirements(drop-course(exact-completed-roster, "CSCI 1970") + [list: "CSCCC 1970"])
+    is malformed
+  check-requirements(drop-course(exact-completed-roster, "MATH 0520") + [list: "MATH0520"])
+    is malformed
+  check-requirements(drop-course(exact-completed-roster, "MATH 0520") + [list: "MATH XXXX"])
+    is malformed
+  check-requirements(drop-course(exact-completed-roster, "MATH 0520") + [list: "MATH 520"])
+    is malformed
+  check-requirements(drop-course(exact-completed-roster, "MATH 0520") + [list: "MATHH 0520"])
+    is malformed
 end
 
 check "completed but unnecessary (should return completed anyways)":
@@ -142,29 +144,38 @@ check "happy case for completed":
 end
 
 check "completed prereq combinations":
-  check-requirements(drop-course(exact-completed-roster, "MATH 0100") + [list: "MATH 0170"]) is completed
-  check-requirements(drop-course(exact-completed-roster, "MATH 0100") + [list: "MATH 0190"]) is completed
+  check-requirements(drop-course(exact-completed-roster, "MATH 0100") + [list: "MATH 0170"])
+    is completed
+  check-requirements(drop-course(exact-completed-roster, "MATH 0100") + [list: "MATH 0190"])
+    is completed
 end
 
 check "completed intro-math combinations":
-  check-requirements(drop-course(exact-completed-roster, "MATH 1530") + [list: "CSCI 0220"]) is completed
+  check-requirements(drop-course(exact-completed-roster, "MATH 1530") + [list: "CSCI 0220"])
+    is completed
 end
 
 check "completed foundations combinations":
-  check-requirements(drop-course(exact-completed-roster, "CSCI 0300") + [list: "CSCI 0330"]) is completed
+  check-requirements(drop-course(exact-completed-roster, "CSCI 0300") + [list: "CSCI 0330"])
+    is completed
 end
 
 check "completed core-cs combinations":
-  check-requirements(drop-course(exact-completed-roster, "CSCI 0150") + [list: "CSCI 0111"]) is completed
-  check-requirements(drop-course(exact-completed-roster, "CSCI 0150") + [list: "CSCI 0170"]) is completed
-  check-requirements(drop-course(exact-completed-roster, "CSCI 0150") + [list: "CSCI 0190"]) is completed
-  check-requirements(drop-course(drop-course(exact-completed-roster, "CSCI 0150") + [list: "CSCI 0190"], 
-      "CSCI 0200") + [list: "CSCI 3000"]) is completed
+  check-requirements(drop-course(exact-completed-roster, "CSCI 0150") + [list: "CSCI 0111"])
+    is completed
+  check-requirements(drop-course(exact-completed-roster, "CSCI 0150") + [list: "CSCI 0170"])
+    is completed
+  check-requirements(drop-course(exact-completed-roster, "CSCI 0150") + [list: "CSCI 0190"])
+    is completed
+  check-requirements(drop-course(drop-course(exact-completed-roster, "CSCI 0150")
+      + [list: "CSCI 0190"], "CSCI 0200") + [list: "CSCI 3000"]) is completed
 end
 
 check "completed four-add combinations":
-  check-requirements(drop-course(exact-completed-roster, "MATH 0520") + [list: "MATH 0540"]) is completed
-  check-requirements(drop-course(exact-completed-roster, "MATH 0520") + [list: "APMA 0260"]) is completed
+  check-requirements(drop-course(exact-completed-roster, "MATH 0520") + [list: "MATH 0540"])
+    is completed
+  check-requirements(drop-course(exact-completed-roster, "MATH 0520") + [list: "APMA 0260"])
+    is completed
   check-requirements(drop-course(exact-completed-roster, "CSCI 1973") + [list: "CSCI 1005"])
     is completed
   check-requirements(drop-course(exact-completed-roster, "CSCI 1970") + [list: "CSCI 1005"])
@@ -220,8 +231,8 @@ check "completed with non-technical cs":
 end
 
 check "overuse non-technical cs":
-  check-requirements(drop-course(exact-completed-roster-non-tech, "CSCI 0320") + [list: "CSCI 1370"])
-    is has-unnecessary
+  check-requirements(drop-course(exact-completed-roster-non-tech, "CSCI 0320")
+      + [list: "CSCI 1370"]) is has-unnecessary
 end
 
 check "all-necessary but malformed":

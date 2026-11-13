@@ -11,7 +11,6 @@ include file("requirements-2-common.arr")
 #
 # You may write implementation-specific tests (e.g., of helper functions) in this file.
 
-# Course names: a 4-character department, a space, then 4 digits (Req 1 handout, section 4)
 UPPERCASE-LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 DIGITS = "0123456789"
 DEPT-LENGTH = 4
@@ -88,8 +87,7 @@ check "all-chars-in: false on any disallowed character, true for the empty strin
 end
 
 fun well-formed-dept(dept :: String) -> Boolean:
-  doc: ```determines if dept is four uppercase letters, or three uppercase letters padded
-       with one space```
+  doc: "determines if dept is a well-formed department"
   all-chars-in(dept, UPPERCASE-LETTERS)
   or (all-chars-in(string-substring(dept, 0, DEPT-LENGTH - 1), UPPERCASE-LETTERS)
     and (string-substring(dept, DEPT-LENGTH - 1, DEPT-LENGTH) == " "))
@@ -104,8 +102,7 @@ check "well-formed-dept: only four letters, or three letters and a trailing spac
 end
 
 fun well-formed-course(course :: String) -> Boolean:
-  doc: ```determines if course is a department, one space, and four digits, ignoring
-       anything after the digits```
+  doc: "determines if course is a well-formed course name"
   (string-length(course) >= COURSE-NAME-LENGTH)
   and well-formed-dept(string-substring(course, 0, DEPT-LENGTH))
   and (string-substring(course, DEPT-LENGTH, NUMBER-START) == " ")
