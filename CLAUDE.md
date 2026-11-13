@@ -75,13 +75,14 @@ pyret-npm 0.1.28 is the newest release, and it has no `essentials2021` context. 
   `requirements-2-code.arr` to run the helper tests). It copies `reqs-common.arr` and the three
   `requirements-2-*.arr` files into a temp folder (`$CLAUDE_JOB_DIR/tmp` in background sessions),
   changes line 1 of the three copies to `use context starter2024`, and runs `pyret`. Never
-  change the context line in the real files. After cluster 2 (Nov 13): tests file 213 of 213,
-  code file 105 of 105.
+  change the context line in the real files. After cluster 3, part 1 (Nov 13): tests file 226
+  of 226, code file 109 of 109.
 - `scratch/feedback.py run REV OUT.json` runs every runnable test from
   `context/feedback-impl-10.md` against the code at a commit (or `WORKTREE`); `compare` lists the
   results that changed between two runs and flags regressions; `show` lists failures. 249 of the
   report's tests are runnable (7 call suite helpers). Passes: 37 before cluster 2 (df23cd9), 97
-  after part 1 (0350760), 139 after part 2 (4537f3a). The report holds only tests impl-10 failed,
+  after part 1 (0350760), 139 after part 2 (4537f3a), 168 after cluster 3, part 1 (a3918f3).
+  The report holds only tests impl-10 failed,
   and some contradict the spec or the decisions log, so a failure there is evidence to weigh, not
   a bug by itself. Run it before and after each change to catch regressions. The generated check
   file stays in the temp folder: it holds every report test, so never copy it into `scratch/` or
@@ -107,7 +108,8 @@ pyret-npm 0.1.28 is the newest release, and it has no `essentials2021` context. 
   cluster 2 hand-off (commit 76b8e65: `scratch/feedback.py` exists), Luke hasn't merged and
   pushed it yet: ask him to.
 - Not ready to submit. Everything below has to be done first:
-  - Clusters 3 to 5 aren't fixed. Clusters 1 and 2 are done (below).
+  - Clusters 4 and 5 aren't fixed, and cluster 3 waits on one open decision (below). Clusters
+    1 and 2 are done.
   - Known style problems in `requirements-2-code.arr`: `bool-to-num` is unused, there's
     `.get(0)` in `core-cs`, and `.{0}` tuple access in `four-add`. Also seen during cluster 2:
     literal 200, 1000, 3, 4 and 5 in `core-cs`, `tech-elec`, `four-add`, `use-cs-1000` and
@@ -136,10 +138,17 @@ pyret-npm 0.1.28 is the newest release, and it has no `essentials2021` context. 
   foundation; tests for it are in the "approved outside courses" check blocks.
 - Luke ran 372395b in the browser starter (Nov 13): every test passed. Cluster 2 was pushed and
   fast-forwarded into `main` (4537f3a, Nov 13).
-- Next: cluster 3. Start with CSCI 0300 and CSCI 0330 (decided Nov 13: only one counts
-  anywhere). The code lets 0330 be the Series C extra next to 0300 (suite-Q line 403 returns
-  `completed` because of it), and `core-cs` sets aside a course numbered 200 or above as the
-  extra even with no CSCI 0190, so `[list: "CSCI 0300", "CSCI 0330"]` returns `all-necessary`.
+- Cluster 3, part 1 on `worktree-cluster-3-pick-one` (a3918f3, Nov 13, not pushed): `prereqs`
+  marks one calculus course, not all of them, and `check-requirements` drops `CSCI 0330` from
+  the courses that can fill slots when `CSCI 0300` is there (`keep-one-systems-course`), so
+  0330 can't be the Series C extra next to 0300. 9 new tests in 2 check blocks (7 failed
+  before the fix). Feedback passes 139 to 168. The one changed-to-fail test, suite-Q line 403
+  (expects `completed`, 4 of 17 passed it), completes only if 0330 is the extra next to 0300,
+  which the Nov 13 decision rules out. Luke hasn't run it in the browser starter yet.
+- Cluster 3 leftovers: of the 25 report tests that still expect `has-unnecessary` and get
+  `all-necessary`, 7 list a course twice, 9 are exclusive pairs and 1 is the shared
+  non-technical cap (all open or out of scope). The other 8 hinge on the open "Series C extra
+  with no intro course" item in the decisions log.
 - `NON-TECHNICAL-COURSES` keeps the Handbook's non-CS entries (APMA 1910, DEVL 1810, IAPA 1701,
   IAPA 1801, PLCY 1702), but the code only checks it against CSCI courses, so they never matter.
   Whether they count toward the cap of 3 is an open decisions-log item.
@@ -179,9 +188,9 @@ implementations passed the test.
    (57 strong) that expect `all-necessary` while we return `has-unnecessary`. Examples are
    `[list: "HIST 0150"]`, `"MATH 9999"`, `"PHP  0060"` and suffixed codes like `"CSCI 0190A"`.
    We also fail to recognize `"PHP  2630"` as an approved outside course.
-3. **Redundancy inside a pick-one group is missed.** 56 tests (29 strong) expect `has-unnecessary`
-   and we return `all-necessary`. The core cases are `MATH 0100` with `MATH 0170`, and
-   `CSCI 0300` with `CSCI 0330`.
+3. **(Core cases done Nov 13.) Redundancy inside a pick-one group is missed.** 56 tests
+   (29 strong) expect `has-unnecessary` and we return `all-necessary`. The core cases are
+   `MATH 0100` with `MATH 0170`, and `CSCI 0300` with `CSCI 0330`.
 4. **Course allocation needs search, not a greedy pass.** Examples are `CSCI 0220` together with
    `MATH 1530`, and the CSCI 0190 path's extra course. Several suites name their tests
    "wrong greedy solution". Most of the 64 "should be completed" failures are here.
@@ -276,6 +285,17 @@ Each line notes how the other implementations split.
       course from 200 up, so such a course makes the roster `has-unnecessary`. Suite-J line
       226 expects `all-necessary` for a roster with `CSCI 0999` (and 3000+ courses); 3 of 17
       passed it. Noticed Nov 13; write no tests that depend on it until settled.
+- [ ] Series C extra with no intro course: when a roster has none of CSCI 0111, 0150, 0170,
+      0190 and 0200, should one CSCI course numbered 200 or above be held for the Series C
+      extra ("CSCI 0190 ... AND an additional CS course numbered 200 or above not otherwise
+      used to satisfy a concentration requirement")? `core-cs` holds one (its last
+      `has-200-plus` branch), so `[list: "CSCI 1250", "CSCI 1280", "CSCI 1360", "CSCI 1370"]`
+      and ten 1000-level CSCI courses are `all-necessary`. That contradicts the Nov 12
+      non-technical entry above, which says the four-course roster `is has-unnecessary`. 8
+      report tests expect `has-unnecessary` without the held slot: suite-B lines 198, 123 and
+      124, suite-I 175 and 167, suite-K 100 (7 to 10 of 17 passed each), suite-M 388 and
+      suite-Q 104 (`CSCI 0340`, so the "unlisted 200 to 999" item above also applies). Noticed
+      Nov 13; asked Luke.
 
 ## How to work with Luke
 
