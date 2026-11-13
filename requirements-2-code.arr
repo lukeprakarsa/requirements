@@ -78,10 +78,10 @@ end
 
 fun all-chars-in(str :: String, allowed :: String) -> Boolean:
   doc: "determines if every character of str appears in allowed"
-  string-explode(str).all(lam(char): string-contains(allowed, char) end)
+  string-explode(str).all(lam(char :: String) -> Boolean: string-contains(allowed, char) end)
 end
 
-check "all-chars-in":
+check "all-chars-in: false on any disallowed character, true for the empty string":
   all-chars-in("CSCI", UPPERCASE-LETTERS) is true
   all-chars-in("CS I", UPPERCASE-LETTERS) is false
   all-chars-in("", DIGITS) is true
@@ -95,7 +95,7 @@ fun well-formed-dept(dept :: String) -> Boolean:
     and (string-substring(dept, DEPT-LENGTH - 1, DEPT-LENGTH) == " "))
 end
 
-check "well-formed-dept":
+check "well-formed-dept: only four letters, or three letters and a trailing space":
   well-formed-dept("CSCI") is true
   well-formed-dept("PHP ") is true
   well-formed-dept(" PHP") is false
@@ -112,7 +112,7 @@ fun well-formed-course(course :: String) -> Boolean:
   and all-chars-in(string-substring(course, NUMBER-START, COURSE-NAME-LENGTH), DIGITS)
 end
 
-check "well-formed-course":
+check "well-formed-course: checks the first nine characters and ignores any suffix":
   well-formed-course("CSCI 0190") is true
   well-formed-course("PHP  0060") is true
   well-formed-course("CSCI 2951-S") is true
@@ -127,7 +127,7 @@ fun well-formed(roster :: List<String>) -> Boolean:
   roster.all(well-formed-course)
 end
 
-check "well-formed":
+check "well-formed: empty roster is fine, one bad name spoils the roster":
   well-formed(empty) is true
   well-formed([list: "MATH 0100", "CSCI 0150", "PHP  0060"]) is true
   well-formed([list: "MATH 0100", "CSCI 0150", "MATH0100", "PHP  0060"]) is false

@@ -101,8 +101,7 @@ end
 check "malformed: one bad name makes the whole roster malformed":
   check-requirements([list: "HIST 0150", "CSCI 1.50"]) is malformed
   check-requirements(exact-completed-roster + [list: "CSCI-1000"]) is malformed
-  check-requirements(drop-course(exact-completed-roster, "CSCI 0320") + [list: "CSCI 0320"]
-      + [list: " PHP 0060"]) is malformed
+  check-requirements([list: " PHP 0060"] + exact-completed-roster) is malformed
 end
 
 check "well-formed: text after the four digits is ignored":

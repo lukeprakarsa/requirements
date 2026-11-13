@@ -104,6 +104,10 @@ pyret-npm 0.1.28 is the newest release, and it has no `essentials2021` context. 
   completed roster, so they don't depend on this.
 - Cleanup: the rename pushed 17 lines of `requirements-2-tests.arr` past 100 characters. Rewrap
   them. The starter's own comment lines are also over 100; leave those as they are.
+- Before submitting: a final style-guide pass over every line of all three files, against every
+  rule in the style guide below. Don't assume the Req 1 code is clean: Luke says it has style
+  problems beyond the three listed above, and wants to see whether Claude finds them. Report
+  them to Luke before fixing.
 
 ## Spec facts that settle disputes (Req 1 handout)
 
@@ -202,6 +206,10 @@ Each line notes how the other implementations split.
 - When Claude creates a branch Luke will keep working on, switch Luke's main checkout to it.
   Remove any worktree holding the branch first, since git won't check out a branch that's in use
   in another worktree. Luke pushes; Claude doesn't (the permission check blocked it on Nov 12).
+- New code must not add style violations. Before each commit, check every added line against
+  each style-guide rule, and say in the summary that you did. Cluster 1's first commit
+  (639a3c4) shipped an unannotated `lam(char)`. Lambda parameters and results need
+  annotations too. It also had a test that dropped a course and added it straight back.
 - `scratch/feedback-check.arr` may hold tests taken from the feedback reports whose expected
   results agree with the spec and the decisions log. It is a local regression check only. Never
   copy those tests into `requirements-2-tests.arr`.
