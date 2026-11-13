@@ -112,8 +112,12 @@ pyret-npm 0.1.28 is the newest release, and it has no `essentials2021` context. 
   decisions (CSCI 0190 path extra slot, 3000+) or on the non-technical cap of 3.
 - Luke confirmed (Nov 13) that MATH 1530 can be an outside elective when CSCI 0220 is the math
   foundation; tests for it are in the "approved outside courses" check blocks.
-- Seen in passing for cluster 3: the code lets CSCI 0330 fill the Series C extra slot alongside
-  CSCI 0300 (suite-Q line 403 now returns `completed` because of it).
+- Luke ran 372395b in the browser starter (Nov 13): every test passed. Cluster 2 is ready to
+  push and merge into `main`, so cluster 3 can branch from `origin/main`.
+- Next: cluster 3. Start with CSCI 0300 and CSCI 0330 (decided Nov 13: only one counts
+  anywhere). The code lets 0330 be the Series C extra next to 0300 (suite-Q line 403 returns
+  `completed` because of it), and `core-cs` sets aside a course numbered 200 or above as the
+  extra even with no CSCI 0190, so `[list: "CSCI 0300", "CSCI 0330"]` returns `all-necessary`.
 - `NON-TECHNICAL-COURSES` keeps the Handbook's non-CS entries (APMA 1910, DEVL 1810, IAPA 1701,
   IAPA 1801, PLCY 1702), but the code only checks it against CSCI courses, so they never matter.
   Whether they count toward the cap of 3 is an open question for the style pass or Ed.
@@ -209,6 +213,22 @@ Each line notes how the other implementations split.
 - [x] Two names that are the same course once trimmed (`"CSCI 2951A"`, `"CSCI 2951B"`) list one
       course twice, which is outside the spec: write no tests for it (Nov 12, Luke). Suite-M
       lines 228, 231 and 422 do this; 11 of 17 expected `all-necessary`.
+- [x] Only one of CSCI 0300 and CSCI 0330 counts anywhere in the concentration, so the other
+      can't be the Series C extra course (Nov 13, Luke). Bulletin systems row: "Concentration
+      credit for only one of 300/330"; the slot holds one course anyway, so the phrase only
+      matters outside it. So `[list: "CSCI 0190", "CSCI 0300", "CSCI 0330"] is has-unnecessary`
+      (suite-C line 101: 10 of 17; suite-R line 80: 9 of 17). Suite-N line 153, which completes
+      only if 0330 is the extra, passed on 6 of 17.
+- [ ] Do non-CS non-technical courses count toward the cap of three? Bulletin: "1000-level and
+      2000-level CSCI courses (no more than three non-technical courses as defined in
+      concentration handbook)". The Handbook caps "these" designated courses "towards CS ScB
+      requirements" (3 since 2024), and its list includes APMA 1910, DEVL 1810, IAPA 1701A,
+      IAPA 1801 and PLCY 1702X, plus "ENGN 1800/1931J (counts as an arts/humanities/policy
+      course)". So the text reads as one shared cap. Most implementations count only CSCI
+      courses, as our code does: suite-E line 156 (`CSCI 1800`, `CSCI 1805`, `APMA 1910`,
+      `IAPA 1801` is has-unnecessary) passed on 3 of 17, suite-H line 205 on 4, suite-Q line 232
+      on 3. Ed #711 doesn't settle it. If shared: add ENGN 1800, and the suffix rule would make
+      the trimmed IAPA 1701, IAPA 1801, PLCY 1702 and ENGN 1931 technical. Luke may ask on Ed.
 - [ ] Can CSCI courses numbered 3000 or above fill elective slots? They are valid courses (Req 1
       handout: "assume every course listed is a valid one") and can be the Series C extra course
       ("numbered 200 or above"), as our line 111 test uses `CSCI 3000`. But the elective rows

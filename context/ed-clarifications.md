@@ -51,3 +51,25 @@ approves any suffixed version of it (ENGN 1931, APMA 1930, APMA 2822, IAPA 1701,
 PLCY 1702), even where the Handbook denies other suffixes. Luke (Nov 12) applies the same answer
 to the suffixed CSCI non-technical courses (1952B, 1952X, 2402C, 2952S, 2999A): they count as
 technical, as the Req 1 handout says ("treat all of them as technical").
+
+## #711: Re: EDUC1485 as non-technical course
+
+- Category: Undergraduate – Requirements
+- Asked by: a student, about Sep 2026 (shown as "2 months ago" on Nov 13)
+- Answered by: Kathi Fisler (DUS/DMS); the accepted answer. The post shows "2 Answers"; only
+  this one was captured.
+- Captured: Nov 13, 2026, from Luke's screenshot
+
+> **Question:** As was previously mentioned under post #477, EDUC1485 should count as a
+> non-technical course for the CS requirements. More specifically, could it fall under either
+> "1000-level course outside of CS" or "Single 1-credit or pair of .5 credit courses; A
+> 1000-Level Course"?
+>
+> **Answer:** Apologies for the delay -- I needed to look up your declaration. You can put it
+> anywhere under "Additional Courses"
+
+What it settles: nothing about the cap of three non-technical courses. The answer is about one
+student's declaration and doesn't mention a cap. It only suggests the department treats some
+non-CS courses as non-technical, as the Handbook's list does (APMA 1910, DEVL 1810, ...).
+EDUC 1485 is on the Handbook's approved outside list but not its non-technical list. Post #477
+hasn't been captured.
