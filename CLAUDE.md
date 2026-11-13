@@ -80,8 +80,9 @@ pyret-npm 0.1.28 is the newest release, and it has no `essentials2021` context. 
   `worktree-req2-layout`). Luke ran commit 2b16d27 in the browser starter, and every test passed.
   His commit 42d4538 renamed the parameter to `courses` but missed one `roster`. b50e783 fixes
   that and removes the copied `Completion`, and it passes 141 of 141 locally.
-- Background sessions create worktrees from `origin/main`. If `origin/main` still has the Req 1
-  files (`check-reqs.arr`, `tests.arr`), Luke hasn't pushed `main` yet: ask him to.
+- Background sessions create worktrees from `origin/main`. If `origin/main` doesn't have the
+  suite-P fixture rebuild (commit 8ac2c24: no `"CSCI 1970", "CSCI 1970"` in
+  `requirements-2-tests.arr`), Luke hasn't merged and pushed it yet: ask him to.
 - Not ready to submit. The code is still the Req 1 implementation, so everything below has to be
   done first:
   - None of the feedback clusters are fixed.
@@ -89,9 +90,10 @@ pyret-npm 0.1.28 is the newest release, and it has no `essentials2021` context. 
     `.get(0)` in `core-cs`, and `.{0}` tuple access in `four-add`.
 - Suite-P fixtures rebuilt on `worktree-suite-p-fixtures` (Nov 12): the second `"CSCI 1970"` is now
   `"CSCI 1973"` (Bulletin footnote 4), and the two `four-add` combination tests became
-  "one 197x course plus `CSCI 1005`". 141 of 141 locally. Luke to review the swap.
-- Next: cluster 1.
-- Cleanup: the rename pushed 19 lines of `requirements-2-tests.arr` past 100 characters. Rewrap
+  "one 197x course plus `CSCI 1005`". 141 of 141 locally. Luke confirmed the swap.
+- Next: cluster 1 (see Feedback triage, and the course-name rules under Spec facts). Write failing
+  tests in `requirements-2-tests.arr` first, then fix the well-formedness check.
+- Cleanup: the rename pushed 17 lines of `requirements-2-tests.arr` past 100 characters. Rewrap
   them. The starter's own comment lines are also over 100; leave those as they are.
 
 ## Spec facts that settle disputes (Req 1 handout)
@@ -137,12 +139,9 @@ shows an `Input:` block, that block is the expanded roster.
 
 Our test suite, suite-P, has two problems:
 
-- All 15 tests that at least half the implementations failed (lines 90 to 132 of
-  `requirements-2-tests.arr`; the rename didn't shift them) are built on
-  `exact-completed-roster`, which lists `"CSCI 1970"` twice (line 119 lists `"CSCI 1973"` twice).
-  That input is outside the spec. Line 117 uses `1970` and `1973` and passes on 15 of the 16
-  implementations that ran. Rebuild the fixtures with distinct courses, including
-  `exact-completed-roster-cs19` and the `missing-*` rosters, and keep the derived tests.
+- Fixed Nov 12 (commit 8ac2c24). All 15 tests that at least half the implementations failed were
+  built on `exact-completed-roster`, which listed `"CSCI 1970"` twice, outside the spec. The
+  fixtures now end with `"CSCI 1970", "CSCI 1973"`.
 - The suite never caught impl-10's two biggest bugs (clusters 1 and 2). Add tests for clusters 1
   to 4, written by us rather than copied from other suites.
 
