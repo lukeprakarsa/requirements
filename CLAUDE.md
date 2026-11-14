@@ -75,14 +75,15 @@ pyret-npm 0.1.28 is the newest release, and it has no `essentials2021` context. 
   `requirements-2-code.arr` to run the helper tests). It copies `reqs-common.arr` and the three
   `requirements-2-*.arr` files into a temp folder (`$CLAUDE_JOB_DIR/tmp` in background sessions),
   changes line 1 of the three copies to `use context starter2024`, and runs `pyret`. Never
-  change the context line in the real files. After cluster 3 (Nov 13): tests file 232 of 232,
-  code file 110 of 110.
+  change the context line in the real files. After cluster 4 (Nov 13): tests file 255 of 255,
+  code file 122 of 122.
 - `scratch/feedback.py run REV OUT.json` runs every runnable test from
   `context/feedback-impl-10.md` against the code at a commit (or `WORKTREE`); `compare` lists the
   results that changed between two runs and flags regressions; `show` lists failures. 249 of the
   report's tests are runnable (7 call suite helpers). Passes: 37 before cluster 2 (df23cd9), 97
   after part 1 (0350760), 139 after part 2 (4537f3a), 168 after cluster 3, part 1 (a3918f3),
-  176 after cluster 3, part 2 (bd354c3). The report holds only tests impl-10 failed,
+  176 after cluster 3, part 2 (bd354c3), 178 after cluster 4, part 1 (59ae56b), 185 after
+  cluster 4, part 2. The report holds only tests impl-10 failed,
   and some contradict the spec or the decisions log, so a failure there is evidence to weigh, not
   a bug by itself. Run it before and after each change to catch regressions. The generated check
   file stays in the temp folder: it holds every report test, so never copy it into `scratch/` or
@@ -108,16 +109,16 @@ pyret-npm 0.1.28 is the newest release, and it has no `essentials2021` context. 
   cluster 2 hand-off (commit 76b8e65: `scratch/feedback.py` exists), Luke hasn't merged and
   pushed it yet: ask him to.
 - Not ready to submit. Everything below has to be done first:
-  - Clusters 4 and 5 aren't fixed. Clusters 1 to 3 are done.
-  - Known style problems in `requirements-2-code.arr`: `bool-to-num` is unused, there's one
-    `.get(0)` left in `core-cs` (the CSCI 0190 branch), and `.{0}` tuple access in `four-add`.
-    `prereqs` has a "prequisites" typo in its doc, and most of the old check blocks are named
-    only after their function (`check "prereqs":`). Also seen during cluster 2:
-    literal 200, 1000, 3, 4 and 5 in `core-cs`, `tech-elec`, `four-add`, `use-cs-1000` and
-    `use-non-cs-1000` (constants like `ONE-THOUSAND-LEVEL` exist now); the
-    `trimmed-courses.length() == 0` branch in `check-requirements` does the same as
-    `otherwise`; `tech-elect-seen` is misspelled; `link(f,r)` lacks a space after the comma;
-    36 lines in the code file and 8 in the tests file end in spaces.
+  - Cluster 5 isn't fixed. Clusters 1 to 4 are done.
+  - Known style problems in `requirements-2-code.arr`: `bool-to-num` is unused, and `.{0}`
+    tuple access in `four-add`. `prereqs` has a "prequisites" typo in its doc, and most of the
+    old check blocks are named only after their function (`check "prereqs":`). Also seen
+    during cluster 2: literal 1000, 3, 4 and 5 in `tech-elec`, `four-add`, `use-cs-1000` and
+    `use-non-cs-1000` (constants like `ONE-THOUSAND-LEVEL` exist now); `link(f,r)` lacks a
+    space after the comma; 34 lines in the code file and 8 in the tests file end in
+    spaces. Since cluster 4, `update-electives-linear`'s `electives` parameter is always
+    `empty`. (Cluster 4 removed the `.get(0)` and literal 200 in `core-cs`, the duplicate
+    `length() == 0` branch and the `tech-elect-seen` typo.)
 - Suite-P fixtures rebuilt on `worktree-suite-p-fixtures` (Nov 12): the second `"CSCI 1970"` is now
   `"CSCI 1973"` (Bulletin footnote 4), and the two `four-add` combination tests became
   "one 197x course plus `CSCI 1005`". 141 of 141 locally. Luke confirmed the swap.
@@ -157,11 +158,18 @@ pyret-npm 0.1.28 is the newest release, and it has no `essentials2021` context. 
   (`series-c-extra`), and `four-add` prefers linear algebra and outside courses over CSCI ones.
   5 new tests in 1 check block (2 failed before). Local: tests file 240 of 240, code file 113
   of 113. Feedback passes 176 to 178 (suite-C 69, suite-B 317), no regressions. Suite-B 317
-  passes because a 4th non-technical course (CSCI 1800) is the extra; the old code allowed
-  that too. Part 2 (trying MATH 1530 as the foundation so 0220 can be the extra) waits on the
-  open extra-slot item. The other "should be completed" failures are suite-L outliers (22),
-  0330 next to 0300 (suite-N 153, suite-Q 403), non-technical as technical (suite-A 117), and
-  one CSCI 1973 filling two slots (suite-O 211, 216).
+  passes because a 4th non-technical course (CSCI 1800) is the extra, which the Nov 13
+  decision allows.
+- Cluster 4, part 2 (Nov 13, not pushed): `check-requirements` runs `allocate` twice, with
+  CSCI 0220 and then MATH 1530 tried first as the math foundation, and `better-completion`
+  keeps the better result. 5 new tests in 1 check block plus one non-technical-extra test
+  (2 failed before). Local: tests file 255 of 255, code file 122 of 122. Feedback passes
+  178 to 185, no regressions. The duplicate `trimmed-courses.length() == 0` branch and the
+  `tech-elect-seen` typo went with the move. Cluster 4
+  is done: the "should be completed" failures left are suite-L outliers (22, most with no
+  calculus course), 0330 next to 0300 (suite-N 153, suite-Q 403), non-technical as technical
+  (suite-A 117), and one CSCI 1973 filling two slots (suite-O 211, 216). Luke hasn't run
+  cluster 4 in the browser starter yet.
 - Cluster 3 is done. The 17 report tests that still expect `has-unnecessary` and get
   `all-necessary`: 7 list a course twice (out of scope), 9 are exclusive pairs and 1 is the
   shared non-technical cap (both open).
@@ -232,19 +240,15 @@ Each line notes how the other implementations split.
 - [x] MATH 1530 can count as an additional elective (an approved outside course, toward the cap
       of 3) when CSCI 0220 is the math foundation (Nov 13, Luke). It is a 1000-level MATH
       course. `[list: "CSCI 0220", "MATH 1530"] is all-necessary`: 13 of 17 agree.
-- [ ] On the CSCI 0190 path, what fills the extra-course slot? Can CSCI 0220 fill it while
-      MATH 1530 is the math foundation? Suites B, O, Q and R split around 10 to 12 of 17.
-      Noticed Nov 13 (cluster 4): the Bulletin row says "an additional CS course numbered 200 or
-      above not otherwise used ...; this course may be CSCI 0200, a Foundations course, or a
-      1000-level course". If that list is complete, CSCI 0220, 0320, 0530 and 2000+ courses can't
-      be the extra (our `CSCI 3000` core-cs test and the cluster 4 part 1 tests with `CSCI 0530`
-      would flip). If it's examples, the code's "any CSCI course from 200 up" stands and 0220 can
-      be the extra next to MATH 1530 (suite-B 291, 296; suite-O 71, 107, 144, 172, 195: 9 to 12
-      of 17; suite-C 69, 0530 as the extra: 11 of 17).
-      Partly settled (Nov 13, Luke): the list's "1000-level course" includes 2000-level courses,
-      as for technical electives (Ed #786: "If those 2000-level courses are also Technical, then
-      yes."). Still open: CSCI 0220, 0320 and unlisted 200 to 999 courses as the extra, and
-      whether #786's "also Technical" applies to the extra (the code lets CSCI 1800 be it).
+- [x] The Series C extra course (Nov 13, Luke): any CSCI course numbered 200 or above that no
+      other requirement uses. The Bulletin's "may be CSCI 0200, a Foundations course, or a
+      1000-level course" gives examples, not a complete list. So CSCI 0220 can be the extra
+      while MATH 1530 is the math foundation, CSCI 0320 and unlisted courses like CSCI 0530 can
+      be it, 2000-level courses can be it (as for technical electives, Ed #786: "If those
+      2000-level courses are also Technical, then yes."), and it needn't be technical, so a 4th
+      non-technical course can be it. Evidence: suite-B 291, 296; suite-O 71, 107, 144, 172,
+      195 (0220 as the extra): 9 to 12 of 17; suite-C 69 (0530 as the extra): 11 of 17. Courses
+      numbered 3000 and up are still the separate open item below.
 - [x] Non-technical CSCI courses (Nov 12, from the Bulletin table): none can fill a technical
       slot (footnote 3: "None of these can be CS non-technical courses"), and at most 3 can fill
       additional slots ("no more than three non-technical courses"). So

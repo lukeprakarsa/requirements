@@ -45,29 +45,64 @@ fun check-requirements(courses :: List<String>) -> Completion:
   if not(well-formed(courses)):
     malformed
   else:
-    seen = empty
     trimmed-courses = map(drop-suffix, courses)
-    countable-courses = keep-one-systems-course(trimmed-courses)
-
-    {prereqs-sat; prereqs-seen} = prereqs(countable-courses, seen)
-    {intro-math-sat; intro-math-seen} = intro-math(countable-courses, prereqs-seen)
-    {foundations-sat; foundations-seen} = foundations(countable-courses, intro-math-seen)
-    {core-cs-sat; core-cs-seen} = core-cs(countable-courses, foundations-seen)
-    {tech-elec-sat; tech-elect-seen} = tech-elec(countable-courses, core-cs-seen)
-    {four-add-sat; four-add-seen} = four-add(countable-courses, tech-elect-seen)
-    {series-c-sat; all-seen} = series-c-extra(countable-courses, tech-elect-seen + four-add-seen)
-
-    ask:
-      | prereqs-sat and intro-math-sat and foundations-sat and
-        core-cs-sat and tech-elec-sat and four-add-sat and series-c-sat then:
-        completed
-      | not(is-empty(not-yet-seen(filter(concentration-course, trimmed-courses), all-seen))) then:
-        has-unnecessary
-      | trimmed-courses.length() == 0 then:
-        all-necessary
-      | otherwise: all-necessary
-    end
+    better-completion(allocate(trimmed-courses, MATH-FOUNDATION-COURSES),
+      allocate(trimmed-courses, MATH-FOUNDATION-COURSES.reverse()))
   end
+end
+
+fun allocate(courses :: List<String>, math-order :: List<String>) -> Completion:
+  doc: "assigns trimmed courses to requirements, trying math foundations in math-order"
+  countable-courses = keep-one-systems-course(courses)
+  {prereqs-sat; prereqs-seen} = prereqs(countable-courses, empty)
+  {intro-math-sat; intro-math-seen} = intro-math(countable-courses, prereqs-seen, math-order)
+  {foundations-sat; foundations-seen} = foundations(countable-courses, intro-math-seen)
+  {core-cs-sat; core-cs-seen} = core-cs(countable-courses, foundations-seen)
+  {tech-elec-sat; tech-elec-seen} = tech-elec(countable-courses, core-cs-seen)
+  {four-add-sat; four-add-seen} = four-add(countable-courses, tech-elec-seen)
+  {series-c-sat; all-seen} = series-c-extra(countable-courses, tech-elec-seen + four-add-seen)
+
+  ask:
+    | prereqs-sat and intro-math-sat and foundations-sat and
+      core-cs-sat and tech-elec-sat and four-add-sat and series-c-sat then:
+      completed
+    | not(is-empty(not-yet-seen(filter(concentration-course, courses), all-seen))) then:
+      has-unnecessary
+    | otherwise: all-necessary
+  end
+end
+
+check "allocate: the math foundation order decides where CSCI 0220 and MATH 1530 go":
+  allocate([list: "CSCI 0190", "CSCI 0220", "MATH 1530"], [list: "CSCI 0220", "MATH 1530"])
+    is all-necessary
+  allocate([list: "CSCI 0190", "APMA 1170", "APMA 1200", "CLPS 1211", "CSCI 0220", "MATH 1530"],
+    [list: "CSCI 0220", "MATH 1530"]) is has-unnecessary
+  allocate([list: "CSCI 0190", "APMA 1170", "APMA 1200", "CLPS 1211", "CSCI 0220", "MATH 1530"],
+    [list: "MATH 1530", "CSCI 0220"]) is all-necessary
+  allocate(empty, [list: "CSCI 0220", "MATH 1530"]) is all-necessary
+end
+
+fun better-completion(first :: Completion, second :: Completion) -> Completion:
+  doc: "picks the better of two allocations of one roster: completed, then all-necessary"
+  cases (Completion) first:
+    | completed => completed
+    | all-necessary =>
+      cases (Completion) second:
+        | completed => completed
+        | all-necessary => all-necessary
+        | has-unnecessary => all-necessary
+        | malformed => raise("better-completion: an allocation is never malformed")
+      end
+    | has-unnecessary => second
+    | malformed => raise("better-completion: an allocation is never malformed")
+  end
+end
+
+check "better-completion: completed beats all-necessary, which beats has-unnecessary":
+  better-completion(has-unnecessary, completed) is completed
+  better-completion(all-necessary, has-unnecessary) is all-necessary
+  better-completion(has-unnecessary, has-unnecessary) is has-unnecessary
+  better-completion(malformed, completed) raises "never malformed"
 end
 
 fun get-dept(course-id :: String) -> String:
@@ -238,20 +273,23 @@ check "prereqs":
   prereqs([list: "MATH 0190", "MATH 0170"], empty) is {true; [list: "MATH 0170"]}
 end
 
-fun intro-math(roster :: List<String>, seen :: List<String>) -> {Boolean; List<String>}:
-  doc: "determines if roster satisfies introductory math foundations"
+fun intro-math(roster :: List<String>, seen :: List<String>, math-order :: List<String>)
+  -> {Boolean; List<String>}:
+  doc: "satisfies the introductory math foundation with the first unseen course in math-order"
   valid-courses = not-yet-seen(roster, seen)
-  ask:
-    | valid-courses.member("CSCI 0220") then: {true; link("CSCI 0220", seen)}
-    | valid-courses.member("MATH 1530") then: {true; link("MATH 1530", seen)}
-    | otherwise: {false; seen}
+  cases (List) filter(lam(course): valid-courses.member(course) end, math-order):
+    | empty => {false; seen}
+    | link(foundation, _) => {true; link(foundation, seen)}
   end
 end
 
-check "intro-math":
-  intro-math([list: "CSCI 0220"], empty) is {true; [list: "CSCI 0220"]}
-  intro-math([list: "MATH 1530"], empty) is {true; [list: "MATH 1530"]}
-  intro-math([list: "MATH 1500"], empty) is {false; empty}
+check "intro-math: takes the first course of math-order that the roster has":
+  intro-math([list: "CSCI 0220", "MATH 1530"], empty, MATH-FOUNDATION-COURSES)
+    is {true; [list: "CSCI 0220"]}
+  intro-math([list: "CSCI 0220", "MATH 1530"], empty, MATH-FOUNDATION-COURSES.reverse())
+    is {true; [list: "MATH 1530"]}
+  intro-math([list: "MATH 1530"], empty, MATH-FOUNDATION-COURSES) is {true; [list: "MATH 1530"]}
+  intro-math([list: "MATH 1500"], empty, MATH-FOUNDATION-COURSES) is {false; empty}
 end
 
 fun has-course(course :: String, roster :: List<String>, seen :: List<String>) 

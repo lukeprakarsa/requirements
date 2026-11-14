@@ -53,6 +53,10 @@ series-c-three-outside =
   series-c-before-electives
   + [list: "CSCI 1350", "CSCI 1380", "APMA 1080", "APMA 1160", "APMA 1690"]
 
+series-c-0220-as-extra =
+  series-c-before-electives
+  + [list: "MATH 1530", "MATH 0520", "APMA 1080", "APMA 1160", "APMA 1690"]
+
 missing-prereq = drop-course(exact-completed-roster, "MATH 0100")
 missing-core-abd = drop-course(exact-completed-roster, "CSCI 0200")
 missing-core-c = drop-course(exact-completed-roster, "CSCI 0200")
@@ -364,4 +368,16 @@ check "Series C: the extra course is a CSCI course the electives don't need":
   check-requirements(drop-course(series-c-extra-only-0530, "CSCI 0530")) is all-necessary
   check-requirements(series-c-three-outside) is completed
   check-requirements(drop-course(series-c-three-outside, "CSCI 1380")) is all-necessary
+  check-requirements([list: "CSCI 0190", "CSCI 1250", "CSCI 1280", "CSCI 1360", "CSCI 1370"])
+    is all-necessary
+end
+
+check "Series C: CSCI 0220 can be the extra course while MATH 1530 is the math foundation":
+  check-requirements(series-c-0220-as-extra) is completed
+  check-requirements(drop-course(series-c-0220-as-extra, "MATH 1530")) is all-necessary
+  check-requirements([list: "CSCI 0190", "APMA 1170", "APMA 1200", "CLPS 1211", "CSCI 0220",
+      "MATH 1530"]) is all-necessary
+  check-requirements([list: "CSCI 0150", "APMA 1170", "APMA 1200", "CLPS 1211", "CSCI 0220",
+      "MATH 1530"]) is has-unnecessary
+  check-requirements([list: "CSCI 0190", "CSCI 0220", "MATH 1530"]) is all-necessary
 end
