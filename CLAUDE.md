@@ -75,8 +75,8 @@ pyret-npm 0.1.28 is the newest release, and it has no `essentials2021` context. 
   `requirements-2-code.arr` to run the helper tests). It copies `reqs-common.arr` and the three
   `requirements-2-*.arr` files into a temp folder (`$CLAUDE_JOB_DIR/tmp` in background sessions),
   changes line 1 of the three copies to `use context starter2024`, and runs `pyret`. Never
-  change the context line in the real files. After cluster 5, part 1 (Nov 13): tests file 276 of
-  276, code file 128 of 128.
+  change the context line in the real files. After the style pass (Nov 13): tests file 264 of 264,
+  code file 116 of 116 (18 tests of removed helpers went with them).
 - `scratch/feedback.py run REV OUT.json` runs every runnable test from
   `context/feedback-impl-10.md` against the code at a commit (or `WORKTREE`); `compare` lists the
   results that changed between two runs and flags regressions; `show` lists failures. 249 of the
@@ -116,18 +116,11 @@ pyret-npm 0.1.28 is the newest release, and it has no `essentials2021` context. 
     Left: the open decisions-log items (shared non-technical cap, CSCI 1970/1973 as technical,
     3000+ courses, unlisted 200 to 999), each waiting on Luke, likely via Ed. Clusters 1 to 4
     are done.
-  - Known style problems in `requirements-2-code.arr`: `bool-to-num` is unused, and `.{0}`
-    tuple access in `four-add`. `prereqs` has a "prequisites" typo in its doc, and most of the
-    old check blocks are named only after their function (`check "prereqs":`). Also seen
-    during cluster 2: literal 1000, 3, 4 and 5 in `tech-elec`, `four-add`, `use-cs-1000` and
-    `use-non-cs-1000` (constants like `ONE-THOUSAND-LEVEL` exist now); `link(f,r)` lacks a
-    space after the comma; 34 lines in the code file and 8 in the tests file end in
-    spaces. Since cluster 4, `update-electives-linear`'s `electives` parameter is always
-    `empty`. (Cluster 4 removed the `.get(0)` and literal 200 in `core-cs`, the duplicate
-    `length() == 0` branch and the `tech-elect-seen` typo.) Since the Ed #257 merge, no roster
-    reaching `four-add` has two `"CSCI 1970"` or two `"CSCI 1973"`, so the `>= 2` branches of
-    `update-electives-197x` (and the `four-add` helper tests with two 1970s) are unreachable from
-    `check-requirements`.
+  - Style pass done on `worktree-style-pass` (e7023c0, Nov 13, no behavior change): every
+    item from Claude's review and the old known list is fixed (constants, removed helpers,
+    names, docstrings, check names, `missing-core-c` now uses the Series C roster, trailing
+    spaces). Luke still has to look over the diff and confirm nothing is left, then run it in
+    the browser starter.
 - Suite-P fixtures rebuilt on `worktree-suite-p-fixtures` (Nov 12): the second `"CSCI 1970"` is now
   `"CSCI 1973"` (Bulletin footnote 4), and the two `four-add` combination tests became
   "one 197x course plus `CSCI 1005`". 141 of 141 locally. Luke confirmed the swap.
@@ -198,10 +191,9 @@ pyret-npm 0.1.28 is the newest release, and it has no `essentials2021` context. 
   Whether they count toward the cap of 3 is an open decisions-log item.
 - Done Nov 12: every line of the three submitted files is 100 characters or fewer. Luke wrapped
   the starter's long comment lines under "DO NOT CHANGE" in the tests and common files.
-- Before submitting: a final style-guide pass over every line of all three files, against every
-  rule in the style guide below. Don't assume the Req 1 code is clean: Luke says it has style
-  problems beyond those listed above, and wants to see whether Claude finds them. Report
-  them to Luke before fixing.
+- Final style-guide pass (Nov 13): Claude reported 10 findings beyond the known list, Luke
+  approved fixing all of them, with inline course names as named constants, and they're in
+  e7023c0. After any later code change, check every line again against every rule.
 
 ## Spec facts that settle disputes (Req 1 handout)
 
