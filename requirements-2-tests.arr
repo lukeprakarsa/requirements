@@ -35,6 +35,12 @@ exact-completed-roster-non-tech =
     "CSCI 0300", "CSCI 1000", "CSCI 1001", "CSCI 1002", "CSCI 1003", "CSCI 1004",
     "CSCI 0320", "CSCI 1250", "CSCI 1280", "CSCI 1360"]
 
+non-cs-with-engn-2520 =
+  drop-course(exact-completed-roster-non-cs, "APMA 1690") + [list: "ENGN 2520"]
+
+non-cs-with-data-1340 =
+  drop-course(exact-completed-roster-non-cs, "APMA 1690") + [list: "DATA 1340"]
+
 nine-cs-electives =
   [list: "CSCI 1300", "CSCI 1310", "CSCI 1320", "CSCI 1330", "CSCI 1340", "CSCI 1350",
     "CSCI 1380", "CSCI 1410", "CSCI 1420"]
@@ -351,6 +357,27 @@ check "has-unnecessary: only one of CSCI 0300 and CSCI 0330 counts, even as the 
   check-requirements([list: "CSCI 0500", "CSCI 0410", "CSCI 0330", "CSCI 0300"])
     is has-unnecessary
   check-requirements([list: "CSCI 0190", "CSCI 0300", "CSCI 0330"]) is has-unnecessary
+end
+
+check "has-unnecessary: only one course of each Handbook exclusive pair counts":
+  check-requirements([list: "ENGN 2520", "CSCI 1420"]) is has-unnecessary
+  check-requirements([list: "DATA 1340", "CSCI 1951A"]) is has-unnecessary
+  check-requirements([list: "EEPS 1340", "CSCI 1951A"]) is has-unnecessary
+  check-requirements([list: "ENGN 2520", "CSCI 1430"]) is all-necessary
+  check-requirements([list: "DATA 1340", "CSCI 1420"]) is all-necessary
+  check-requirements(non-cs-with-engn-2520) is completed
+  check-requirements(drop-course(non-cs-with-engn-2520, "CSCI 1004") + [list: "CSCI 1420"])
+    is has-unnecessary
+  check-requirements(drop-course(non-cs-with-data-1340, "CSCI 1004") + [list: "CSCI 1951A"])
+    is has-unnecessary
+end
+
+check "exclusive pairs: a suffix is ignored, and DATA 1340 and EEPS 1340 are two courses":
+  check-requirements([list: "DATA 1340", "CSCI 1951I"]) is has-unnecessary
+  check-requirements([list: "DATA 1340", "EEPS 1340"]) is all-necessary
+  check-requirements([list: "DATA 1340", "EEPS 1340", "CSCI 1951A"]) is has-unnecessary
+  check-requirements(drop-course(non-cs-with-data-1340, "APMA 1160")
+      + [list: "EEPS 1340", "CSCI 1951A"]) is completed
 end
 
 check "has-unnecessary: the Series C extra slot opens only once CSCI 0190 is on the roster":

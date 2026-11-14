@@ -35,6 +35,7 @@ APPROVED-OUTSIDE-COURSES = [list: "APMA 1080", "APMA 1160", "APMA 1690", "APMA 1
   "MUSC 1210", "NEUR 1440", "NEUR 1660", "PHIL 1630", "PHIL 1635", "PHIL 1675", "PHIL 1835",
   "PHIL 1855", "PHIL 1880", "PHYS 1590", "PHYS 1600", "PHYS 2550", "PHP  1855", "PHP  1689",
   "PLCY 1702", "ARTS 1550"]
+CSCI-1951-OUTSIDE-PAIRS = [list: "DATA 1340", "EEPS 1340"]
 NON-TECHNICAL-COURSES = [list: "CSCI 1250", "CSCI 1280", "CSCI 1360", "CSCI 1370",
   "CSCI 1800", "CSCI 1805", "CSCI 1860", "CSCI 1870", "CSCI 2002", "CSCI 2200", "APMA 1910",
   "DEVL 1810", "IAPA 1701", "IAPA 1801", "PLCY 1702"]
@@ -46,14 +47,55 @@ fun check-requirements(courses :: List<String>) -> Completion:
     malformed
   else:
     trimmed-courses = map(drop-suffix, courses)
-    better-completion(allocate(trimmed-courses, MATH-FOUNDATION-COURSES),
-      allocate(trimmed-courses, MATH-FOUNDATION-COURSES.reverse()))
+    countable-courses = keep-one-systems-course(
+      drop-when-present(trimmed-courses, [list: "CSCI 1420"], [list: "ENGN 2520"]))
+    better-completion(
+      best-allocation(trimmed-courses,
+        drop-when-present(countable-courses, [list: "CSCI 1951"], CSCI-1951-OUTSIDE-PAIRS)),
+      best-allocation(trimmed-courses,
+        drop-when-present(countable-courses, CSCI-1951-OUTSIDE-PAIRS, [list: "CSCI 1951"])))
   end
 end
 
-fun allocate(courses :: List<String>, math-order :: List<String>) -> Completion:
-  doc: "assigns trimmed courses to requirements, trying math foundations in math-order"
-  countable-courses = keep-one-systems-course(courses)
+fun best-allocation(courses :: List<String>, countable-courses :: List<String>) -> Completion:
+  doc: "the better result of allocate with either math foundation tried first"
+  better-completion(allocate(courses, countable-courses, MATH-FOUNDATION-COURSES),
+    allocate(courses, countable-courses, MATH-FOUNDATION-COURSES.reverse()))
+end
+
+check "best-allocation: CSCI 0220 can be the extra course when MATH 1530 is the foundation":
+  best-allocation([list: "CSCI 0190", "CSCI 0220", "MATH 1530"],
+    [list: "CSCI 0190", "CSCI 0220", "MATH 1530"]) is all-necessary
+  best-allocation(
+    [list: "CSCI 0150", "APMA 1170", "APMA 1200", "CLPS 1211", "CSCI 0220", "MATH 1530"],
+    [list: "CSCI 0150", "APMA 1170", "APMA 1200", "CLPS 1211", "CSCI 0220", "MATH 1530"])
+    is has-unnecessary
+end
+
+fun drop-when-present(
+    roster :: List<String>, keep-courses :: List<String>, drop-courses :: List<String>)
+  -> List<String>:
+  doc: "removes drop-courses from roster if roster has any of keep-courses"
+  if any(lam(course): roster.member(course) end, keep-courses):
+    filter(lam(course): not(drop-courses.member(course)) end, roster)
+  else:
+    roster
+  end
+end
+
+check "drop-when-present: drops only when a course to keep is on the roster":
+  drop-when-present([list: "ENGN 2520", "CSCI 1420"], [list: "CSCI 1420"], [list: "ENGN 2520"])
+    is [list: "CSCI 1420"]
+  drop-when-present([list: "ENGN 2520", "CSCI 1430"], [list: "CSCI 1420"], [list: "ENGN 2520"])
+    is [list: "ENGN 2520", "CSCI 1430"]
+  drop-when-present([list: "DATA 1340", "EEPS 1340", "CSCI 1951"], CSCI-1951-OUTSIDE-PAIRS,
+    [list: "CSCI 1951"]) is [list: "DATA 1340", "EEPS 1340"]
+  drop-when-present(empty, [list: "CSCI 1420"], [list: "ENGN 2520"]) is empty
+end
+
+fun allocate(courses :: List<String>, countable-courses :: List<String>,
+    math-order :: List<String>) -> Completion:
+  doc: "assigns countable-courses to requirements; any other course in courses is unnecessary"
   {prereqs-sat; prereqs-seen} = prereqs(countable-courses, empty)
   {intro-math-sat; intro-math-seen} = intro-math(countable-courses, prereqs-seen, math-order)
   {foundations-sat; foundations-seen} = foundations(countable-courses, intro-math-seen)
@@ -72,14 +114,16 @@ fun allocate(courses :: List<String>, math-order :: List<String>) -> Completion:
   end
 end
 
-check "allocate: the math foundation order decides where CSCI 0220 and MATH 1530 go":
-  allocate([list: "CSCI 0190", "CSCI 0220", "MATH 1530"], [list: "CSCI 0220", "MATH 1530"])
-    is all-necessary
+check "allocate: the math order decides where CSCI 0220 goes; uncounted courses are unnecessary":
   allocate([list: "CSCI 0190", "APMA 1170", "APMA 1200", "CLPS 1211", "CSCI 0220", "MATH 1530"],
+    [list: "CSCI 0190", "APMA 1170", "APMA 1200", "CLPS 1211", "CSCI 0220", "MATH 1530"],
     [list: "CSCI 0220", "MATH 1530"]) is has-unnecessary
   allocate([list: "CSCI 0190", "APMA 1170", "APMA 1200", "CLPS 1211", "CSCI 0220", "MATH 1530"],
+    [list: "CSCI 0190", "APMA 1170", "APMA 1200", "CLPS 1211", "CSCI 0220", "MATH 1530"],
     [list: "MATH 1530", "CSCI 0220"]) is all-necessary
-  allocate(empty, [list: "CSCI 0220", "MATH 1530"]) is all-necessary
+  allocate([list: "ENGN 2520", "CSCI 1420"], [list: "CSCI 1420"], [list: "CSCI 0220", "MATH 1530"])
+    is has-unnecessary
+  allocate(empty, empty, [list: "CSCI 0220", "MATH 1530"]) is all-necessary
 end
 
 fun better-completion(first :: Completion, second :: Completion) -> Completion:
