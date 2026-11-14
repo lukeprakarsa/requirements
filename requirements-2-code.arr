@@ -46,7 +46,7 @@ fun check-requirements(courses :: List<String>) -> Completion:
   if not(well-formed(courses)):
     malformed
   else:
-    trimmed-courses = map(drop-suffix, courses)
+    trimmed-courses = distinct(map(drop-suffix, courses))
     countable-courses = keep-one-systems-course(
       drop-when-present(trimmed-courses, [list: "CSCI 1420"], [list: "ENGN 2520"]))
     better-completion(

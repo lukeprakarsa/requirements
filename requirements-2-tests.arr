@@ -372,6 +372,14 @@ check "has-unnecessary: only one course of each Handbook exclusive pair counts":
     is has-unnecessary
 end
 
+check "suffixes: names that are one course once trimmed merge and count once":
+  check-requirements([list: "CSCI 2951A", "CSCI 2951B"]) is all-necessary
+  check-requirements([list: "CSCI 1250", "CSCI 1280", "CSCI 1360", "CSCI 1360A"])
+    is all-necessary
+  check-requirements(drop-course(exact-completed-roster, "CSCI 1004") + [list: "CSCI 1003A"])
+    is all-necessary
+end
+
 check "exclusive pairs: a suffix is ignored, and DATA 1340 and EEPS 1340 are two courses":
   check-requirements([list: "DATA 1340", "CSCI 1951I"]) is has-unnecessary
   check-requirements([list: "DATA 1340", "EEPS 1340"]) is all-necessary
