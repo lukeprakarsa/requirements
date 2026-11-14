@@ -119,8 +119,8 @@ pyret-npm 0.1.28 is the newest release, and it has no `essentials2021` context. 
   - Style pass done on `worktree-style-pass` (e7023c0, Nov 13, no behavior change): every
     item from Claude's review and the old known list is fixed (constants, removed helpers,
     names, docstrings, check names, `missing-core-c` now uses the Series C roster, trailing
-    spaces). Luke still has to look over the diff and confirm nothing is left, then run it in
-    the browser starter.
+    spaces). Luke reviewed the diff and confirmed it, and ran e7023c0 in the browser starter
+    (Nov 13): every test passed.
 - Suite-P fixtures rebuilt on `worktree-suite-p-fixtures` (Nov 12): the second `"CSCI 1970"` is now
   `"CSCI 1973"` (Bulletin footnote 4), and the two `four-add` combination tests became
   "one 197x course plus `CSCI 1005`". 141 of 141 locally. Luke confirmed the swap.
