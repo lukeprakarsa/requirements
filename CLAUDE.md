@@ -108,6 +108,8 @@ pyret-npm 0.1.28 is the newest release, and it has no `essentials2021` context. 
 - Background sessions create worktrees from `origin/main`. If `origin/main` doesn't have the
   cluster 2 hand-off (commit 76b8e65: `scratch/feedback.py` exists), Luke hasn't merged and
   pushed it yet: ask him to.
+- Before the next session: if Luke said to push, `worktree-cluster-4-search` is on origin and
+  merged into `main`; otherwise ask him whether to push and merge it before starting cluster 5.
 - Not ready to submit. Everything below has to be done first:
   - Cluster 5 isn't fixed. Clusters 1 to 4 are done.
   - Known style problems in `requirements-2-code.arr`: `bool-to-num` is unused, and `.{0}`
@@ -152,7 +154,7 @@ pyret-npm 0.1.28 is the newest release, and it has no `essentials2021` context. 
   in 1 check block, with the `nine-cs-electives` and `ten-cs-electives` rosters (2 failed
   before the fix), and one `core-cs` helper test. Feedback passes 168 to 176, no regressions;
   suite-Q line 104 passes only because `CSCI 0340` now counts as unnecessary (see the open
-  "unlisted 200 to 999" item). Luke hasn't run cluster 3 in the browser starter yet.
+  "unlisted 200 to 999" item).
 - Cluster 4, part 1 on `worktree-cluster-4-search` (59ae56b, Nov 13, not pushed): the Series
   C extra is filled last, from CSCI courses from 200 up that nothing else used
   (`series-c-extra`), and `four-add` prefers linear algebra and outside courses over CSCI ones.
@@ -160,7 +162,7 @@ pyret-npm 0.1.28 is the newest release, and it has no `essentials2021` context. 
   of 113. Feedback passes 176 to 178 (suite-C 69, suite-B 317), no regressions. Suite-B 317
   passes because a 4th non-technical course (CSCI 1800) is the extra, which the Nov 13
   decision allows.
-- Cluster 4, part 2 (Nov 13, not pushed): `check-requirements` runs `allocate` twice, with
+- Cluster 4, part 2 (24cc600, Nov 13, not pushed): `check-requirements` runs `allocate` twice, with
   CSCI 0220 and then MATH 1530 tried first as the math foundation, and `better-completion`
   keeps the better result. 5 new tests in 1 check block plus one non-technical-extra test
   (2 failed before). Local: tests file 255 of 255, code file 122 of 122. Feedback passes
@@ -168,8 +170,8 @@ pyret-npm 0.1.28 is the newest release, and it has no `essentials2021` context. 
   `tech-elect-seen` typo went with the move. Cluster 4
   is done: the "should be completed" failures left are suite-L outliers (22, most with no
   calculus course), 0330 next to 0300 (suite-N 153, suite-Q 403), non-technical as technical
-  (suite-A 117), and one CSCI 1973 filling two slots (suite-O 211, 216). Luke hasn't run
-  cluster 4 in the browser starter yet.
+  (suite-A 117), and one CSCI 1973 filling two slots (suite-O 211, 216). Luke ran 24cc600 in
+  the browser starter (Nov 13): every test passed, so cluster 3 has passed there too.
 - Cluster 3 is done. The 17 report tests that still expect `has-unnecessary` and get
   `all-necessary`: 7 list a course twice (out of scope), 9 are exclusive pairs and 1 is the
   shared non-technical cap (both open).
