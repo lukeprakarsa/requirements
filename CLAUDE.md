@@ -152,6 +152,16 @@ pyret-npm 0.1.28 is the newest release, and it has no `essentials2021` context. 
   before the fix), and one `core-cs` helper test. Feedback passes 168 to 176, no regressions;
   suite-Q line 104 passes only because `CSCI 0340` now counts as unnecessary (see the open
   "unlisted 200 to 999" item). Luke hasn't run cluster 3 in the browser starter yet.
+- Cluster 4, part 1 on `worktree-cluster-4-search` (59ae56b, Nov 13, not pushed): the Series
+  C extra is filled last, from CSCI courses from 200 up that nothing else used
+  (`series-c-extra`), and `four-add` prefers linear algebra and outside courses over CSCI ones.
+  5 new tests in 1 check block (2 failed before). Local: tests file 240 of 240, code file 113
+  of 113. Feedback passes 176 to 178 (suite-C 69, suite-B 317), no regressions. Suite-B 317
+  passes because a 4th non-technical course (CSCI 1800) is the extra; the old code allowed
+  that too. Part 2 (trying MATH 1530 as the foundation so 0220 can be the extra) waits on the
+  open extra-slot item. The other "should be completed" failures are suite-L outliers (22),
+  0330 next to 0300 (suite-N 153, suite-Q 403), non-technical as technical (suite-A 117), and
+  one CSCI 1973 filling two slots (suite-O 211, 216).
 - Cluster 3 is done. The 17 report tests that still expect `has-unnecessary` and get
   `all-necessary`: 7 list a course twice (out of scope), 9 are exclusive pairs and 1 is the
   shared non-technical cap (both open).
@@ -224,6 +234,13 @@ Each line notes how the other implementations split.
       course. `[list: "CSCI 0220", "MATH 1530"] is all-necessary`: 13 of 17 agree.
 - [ ] On the CSCI 0190 path, what fills the extra-course slot? Can CSCI 0220 fill it while
       MATH 1530 is the math foundation? Suites B, O, Q and R split around 10 to 12 of 17.
+      Noticed Nov 13 (cluster 4): the Bulletin row says "an additional CS course numbered 200 or
+      above not otherwise used ...; this course may be CSCI 0200, a Foundations course, or a
+      1000-level course". If that list is complete, CSCI 0220, 0320, 0530 and 2000+ courses can't
+      be the extra (our `CSCI 3000` core-cs test and the cluster 4 part 1 tests with `CSCI 0530`
+      would flip). If it's examples, the code's "any CSCI course from 200 up" stands and 0220 can
+      be the extra next to MATH 1530 (suite-B 291, 296; suite-O 71, 107, 144, 172, 195: 9 to 12
+      of 17; suite-C 69, 0530 as the extra: 11 of 17).
 - [x] Non-technical CSCI courses (Nov 12, from the Bulletin table): none can fill a technical
       slot (footnote 3: "None of these can be CS non-technical courses"), and at most 3 can fill
       additional slots ("no more than three non-technical courses"). So
