@@ -35,6 +35,12 @@ exact-completed-roster-non-tech =
     "CSCI 0300", "CSCI 1000", "CSCI 1001", "CSCI 1002", "CSCI 1003", "CSCI 1004",
     "CSCI 0320", "CSCI 1250", "CSCI 1280", "CSCI 1360"]
 
+nine-cs-electives =
+  [list: "CSCI 1300", "CSCI 1310", "CSCI 1320", "CSCI 1330", "CSCI 1340", "CSCI 1350",
+    "CSCI 1380", "CSCI 1410", "CSCI 1420"]
+
+ten-cs-electives = nine-cs-electives + [list: "CSCI 1430"]
+
 missing-prereq = drop-course(exact-completed-roster, "MATH 0100")
 missing-core-abd = drop-course(exact-completed-roster, "CSCI 0200")
 missing-core-c = drop-course(exact-completed-roster, "CSCI 0200")
@@ -329,4 +335,13 @@ check "has-unnecessary: only one of CSCI 0300 and CSCI 0330 counts, even as the 
   check-requirements([list: "CSCI 0500", "CSCI 0410", "CSCI 0330", "CSCI 0300"])
     is has-unnecessary
   check-requirements([list: "CSCI 0190", "CSCI 0300", "CSCI 0330"]) is has-unnecessary
+end
+
+check "has-unnecessary: the Series C extra slot opens only once CSCI 0190 is on the roster":
+  check-requirements(nine-cs-electives) is all-necessary
+  check-requirements(ten-cs-electives) is has-unnecessary
+  check-requirements([list: "CSCI 1250", "CSCI 1280", "CSCI 1360", "CSCI 1370"])
+    is has-unnecessary
+  check-requirements([list: "CSCI 0150"] + ten-cs-electives) is has-unnecessary
+  check-requirements([list: "CSCI 0190"] + ten-cs-electives) is all-necessary
 end

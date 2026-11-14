@@ -341,7 +341,6 @@ fun core-cs(roster :: List<String>, seen :: List<String>) -> {Boolean; List<Stri
     | has-170 then: {false; seen-170}
     | has-190 then: {false; seen-190}
     | has-200 then: {false; seen-200}
-    | has-200-plus then: {false; link(all-200-plus.get(0), seen)}
     | otherwise: {false; seen}
   end
 end
@@ -353,6 +352,7 @@ check "core-cs":
   core-cs([list: "CSCI 0190", "CSCI 0200"], empty) is {true; [list: "CSCI 0190", "CSCI 0200"]}
   core-cs([list: "CSCI 0190", "CSCI 2000"], empty) is {true; [list: "CSCI 0190", "CSCI 2000"]}
   core-cs([list: "CSCI 0190"], empty) is {false; [list: "CSCI 0190"]}
+  core-cs([list: "CSCI 1010"], empty) is {false; empty}
 end
 
 fun tech-elec(roster :: List<String>, seen :: List<String>) -> {Boolean; List<String>}:
