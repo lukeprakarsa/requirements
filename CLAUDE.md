@@ -75,15 +75,16 @@ pyret-npm 0.1.28 is the newest release, and it has no `essentials2021` context. 
   `requirements-2-code.arr` to run the helper tests). It copies `reqs-common.arr` and the three
   `requirements-2-*.arr` files into a temp folder (`$CLAUDE_JOB_DIR/tmp` in background sessions),
   changes line 1 of the three copies to `use context starter2024`, and runs `pyret`. Never
-  change the context line in the real files. After the style pass (Nov 13): tests file 264 of 264,
-  code file 116 of 116 (18 tests of removed helpers went with them).
+  change the context line in the real files. After cluster 5, part 2 (Nov 13): tests file 275 of
+  275, code file 119 of 119.
 - `scratch/feedback.py run REV OUT.json` runs every runnable test from
   `context/feedback-impl-10.md` against the code at a commit (or `WORKTREE`); `compare` lists the
   results that changed between two runs and flags regressions; `show` lists failures. 249 of the
   report's tests are runnable (7 call suite helpers). Passes: 37 before cluster 2 (df23cd9), 97
   after part 1 (0350760), 139 after part 2 (4537f3a), 168 after cluster 3, part 1 (a3918f3),
   176 after cluster 3, part 2 (bd354c3), 178 after cluster 4, part 1 (59ae56b), 185 after
-  cluster 4, part 2, 194 after the pairs (1fd3855), 195 after the Ed #257 merge. The report
+  cluster 4, part 2, 194 after the pairs (1fd3855), 195 after the Ed #257 merge, 195 after
+  cluster 5, part 2 (suite-J 226 gained, suite-Q 104 lost, both expected). The report
   holds only tests impl-10 failed, and some contradict the spec or the decisions log, so a
   failure there is evidence to weigh, not a bug by itself. Run it before and after each change
   to catch regressions. The generated check file stays in the temp folder: it holds every
@@ -112,10 +113,12 @@ pyret-npm 0.1.28 is the newest release, and it has no `essentials2021` context. 
 - Before the next session: if Luke said to push, `worktree-cluster-5-pairs` is on origin and
   merged into `main`; otherwise ask him whether to push and merge it first.
 - Not ready to submit. Everything below has to be done first:
-  - Cluster 5 isn't finished: the exclusive pairs and the Ed #257 merge are done (part 1).
-    Left: the open decisions-log items (shared non-technical cap, CSCI 1970/1973 as technical,
-    3000+ courses, unlisted 200 to 999), each waiting on Luke, likely via Ed. Clusters 1 to 4
-    are done.
+  - Clusters 1 to 5 are done once Luke runs `worktree-cluster-5-settled` in the browser
+    starter. Part 1: exclusive pairs and the Ed #257 merge. Part 2 (Nov 13, not pushed): Luke
+    settled the last four decisions-log items; only the unlisted 200 to 999 rule changed code
+    (`concentration-course` takes `on-series-c`; `NAMED-INTERMEDIATE-COURSES`). 8 new tests in
+    2 check blocks (3 failed before), including tests of the three rules the code already
+    followed. No open decisions-log items are left.
   - Style pass done on `worktree-style-pass` (e7023c0, Nov 13, no behavior change): every
     item from Claude's review and the old known list is fixed (constants, removed helpers,
     names, docstrings, check names, `missing-core-c` now uses the Series C roster, trailing
@@ -306,9 +309,12 @@ Each line notes how the other implementations split.
       matters outside it. So `[list: "CSCI 0190", "CSCI 0300", "CSCI 0330"] is has-unnecessary`
       (suite-C line 101: 10 of 17; suite-R line 80: 9 of 17). Suite-N line 153, which completes
       only if 0330 is the extra, passed on 6 of 17.
-- [ ] Do non-CS non-technical courses count toward the cap of three? Bulletin: "1000-level and
-      2000-level CSCI courses (no more than three non-technical courses as defined in
-      concentration handbook)". The Handbook caps "these" designated courses "towards CS ScB
+- [x] (Nov 13, Luke: the cap "refers to cs technical", so it counts only CSCI non-technical
+      courses, as the code does; `[list: "CSCI 1800", "CSCI 1805", "APMA 1910", "IAPA 1801"]
+      is all-necessary`.) Do non-CS non-technical courses count toward the cap of three?
+      Bulletin: "1000-level and 2000-level CSCI courses (no more than three non-technical
+      courses as defined in concentration handbook)". The Handbook caps "these" designated
+      courses "towards CS ScB
       requirements" (3 since 2024), and its list includes APMA 1910, DEVL 1810, IAPA 1701A,
       IAPA 1801 and PLCY 1702X, plus "ENGN 1800/1931J (counts as an arts/humanities/policy
       course)". So the text reads as one shared cap. Most implementations count only CSCI
@@ -316,7 +322,8 @@ Each line notes how the other implementations split.
       `IAPA 1801` is has-unnecessary) passed on 3 of 17, suite-H line 205 on 4, suite-Q line 232
       on 3. Ed #711 doesn't settle it. If shared: add ENGN 1800, and the suffix rule would make
       the trimmed IAPA 1701, IAPA 1801, PLCY 1702 and ENGN 1931 technical. Luke may ask on Ed.
-- [ ] Can CSCI 1970 or CSCI 1973 fill a technical elective slot? The technical row asks for
+- [x] (Nov 13, Luke: yes, as the code does.) Can CSCI 1970 or CSCI 1973 fill a technical
+      elective slot? The technical row asks for
       "Five CSCI courses at the 1000 level", and footnote 3 excludes only non-technical courses.
       But the additional electives row lists "CSCI 1970 Individual Independent Study, or
       CSCI 1973 Independent Study" (footnote 4: "Up to two uses of CSCI 1970 or CSCI 1973"), and
@@ -325,8 +332,10 @@ Each line notes how the other implementations split.
       suite-E line 224, which completes only if CSCI 1970 is technical, 11 of 17 returned
       `completed` and 5 passed its `has-unnecessary`. Until settled, write no tests that depend
       on it (a test built on `exact-completed-roster` can pass only because 1970 or 1973 fills a
-      technical slot, as the first `CSCI 1952B` test did on Nov 12).
-- [ ] Can CSCI courses numbered 3000 or above fill elective slots? They are valid courses (Req 1
+      technical slot, as the first `CSCI 1952B` test did on Nov 12). Settled, so tests may now
+      depend on it.
+- [x] (Nov 13, Luke: yes, like other upper-level CSCI courses, as the code does.) Can CSCI
+      courses numbered 3000 or above fill elective slots? They are valid courses (Req 1
       handout: "assume every course listed is a valid one") and can be the Series C extra course
       ("numbered 200 or above"), as our line 111 test uses `CSCI 3000`. But the elective rows
       name only "1000-level and 2000-level CSCI courses". The majority treats them like other
@@ -334,8 +343,13 @@ Each line notes how the other implementations split.
       (5 said additional only); suite-J line 199 (3000+ as technical) passed on 9 of 17. Our code
       agrees (`cs-at-least` has no upper bound). Until settled, write no tests that depend on it;
       Luke may ask on Ed.
-- [ ] Is an unlisted CSCI course numbered 200 to 999 (like `CSCI 0999`) unnecessary or ignored
-      when the student isn't on Series C? Its only possible slot is the Series C extra ("an
+- [x] (Nov 13, Luke: "if no cs 19, we treat those 'random' courses as irrelavant since they
+      arent 'redundant'". Without CSCI 0190 on the roster, a CSCI course numbered 200 to 999
+      that no requirement names is ignored, so `[list: "CSCI 0999"]` is all-necessary; with
+      CSCI 0190 it can be the Series C extra. Named ones (CSCI 0200, 0220, 0300, 0320, 0330,
+      0410, 0500) still count. Suite-J 226 now passes; suite-Q 104, 9 of 17, now fails.) Is an
+      unlisted CSCI course numbered 200 to 999 (like `CSCI 0999`) unnecessary or ignored when
+      the student isn't on Series C? Its only possible slot is the Series C extra ("an
       additional CS course numbered 200 or above"). `concentration-course` counts every CSCI
       course from 200 up, so such a course makes the roster `has-unnecessary`. Suite-J line
       226 expects `all-necessary` for a roster with `CSCI 0999` (and 3000+ courses); 3 of 17
