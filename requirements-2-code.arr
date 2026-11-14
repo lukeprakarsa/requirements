@@ -19,11 +19,24 @@ COURSE-NAME-LENGTH = 9
 SERIES-C-MIN-LEVEL = 200
 ONE-THOUSAND-LEVEL = 1000
 TWO-THOUSAND-LEVEL = 2000
+TECHNICAL-ELECTIVE-COUNT = 5
+ADDITIONAL-ELECTIVE-COUNT = 4
+NON-TECHNICAL-CAP = 3
+OUTSIDE-COURSE-CAP = 3
 
 CALCULUS-COURSES = [list: "MATH 0100", "MATH 0170", "MATH 0190"]
 INTRO-COURSES = [list: "CSCI 0111", "CSCI 0150", "CSCI 0170", "CSCI 0190", "CSCI 0200"]
 MATH-FOUNDATION-COURSES = [list: "CSCI 0220", "MATH 1530"]
 LINEAR-ALGEBRA-COURSES = [list: "MATH 0520", "MATH 0540", "APMA 0260"]
+SYSTEMS-COURSE = "CSCI 0300"
+ALTERNATE-SYSTEMS-COURSE = "CSCI 0330"
+SOFTWARE-ENGINEERING-COURSE = "CSCI 0320"
+INDEPENDENT-STUDY-COURSES = [list: "CSCI 1970", "CSCI 1973"]
+APMA-165X-COURSES = [list: "APMA 1650", "APMA 1655"]
+ENGN-PAIR-CSCI-COURSES = [list: "CSCI 1420"]
+ENGN-PAIR-OUTSIDE-COURSES = [list: "ENGN 2520"]
+DATA-PAIR-CSCI-COURSES = [list: "CSCI 1951"]
+DATA-PAIR-OUTSIDE-COURSES = [list: "DATA 1340", "EEPS 1340"]
 APPROVED-OUTSIDE-COURSES = [list: "APMA 1080", "APMA 1160", "APMA 1690", "APMA 1170",
   "APMA 1200", "APMA 1210", "APMA 1360", "APMA 1650", "APMA 1655", "APMA 1660", "APMA 1670",
   "APMA 1710", "APMA 1720", "APMA 1740", "APMA 1910", "APMA 1930", "APMA 2822", "PHP  2630",
@@ -35,7 +48,6 @@ APPROVED-OUTSIDE-COURSES = [list: "APMA 1080", "APMA 1160", "APMA 1690", "APMA 1
   "MUSC 1210", "NEUR 1440", "NEUR 1660", "PHIL 1630", "PHIL 1635", "PHIL 1675", "PHIL 1835",
   "PHIL 1855", "PHIL 1880", "PHYS 1590", "PHYS 1600", "PHYS 2550", "PHP  1855", "PHP  1689",
   "PLCY 1702", "ARTS 1550"]
-CSCI-1951-OUTSIDE-PAIRS = [list: "DATA 1340", "EEPS 1340"]
 NON-TECHNICAL-COURSES = [list: "CSCI 1250", "CSCI 1280", "CSCI 1360", "CSCI 1370",
   "CSCI 1800", "CSCI 1805", "CSCI 1860", "CSCI 1870", "CSCI 2002", "CSCI 2200", "APMA 1910",
   "DEVL 1810", "IAPA 1701", "IAPA 1801", "PLCY 1702"]
@@ -48,12 +60,12 @@ fun check-requirements(courses :: List<String>) -> Completion:
   else:
     trimmed-courses = distinct(map(drop-suffix, courses))
     countable-courses = keep-one-systems-course(
-      drop-when-present(trimmed-courses, [list: "CSCI 1420"], [list: "ENGN 2520"]))
+      drop-when-present(trimmed-courses, ENGN-PAIR-CSCI-COURSES, ENGN-PAIR-OUTSIDE-COURSES))
     better-completion(
       best-allocation(trimmed-courses,
-        drop-when-present(countable-courses, [list: "CSCI 1951"], CSCI-1951-OUTSIDE-PAIRS)),
+        drop-when-present(countable-courses, DATA-PAIR-CSCI-COURSES, DATA-PAIR-OUTSIDE-COURSES)),
       best-allocation(trimmed-courses,
-        drop-when-present(countable-courses, CSCI-1951-OUTSIDE-PAIRS, [list: "CSCI 1951"])))
+        drop-when-present(countable-courses, DATA-PAIR-OUTSIDE-COURSES, DATA-PAIR-CSCI-COURSES)))
   end
 end
 
@@ -88,7 +100,7 @@ check "drop-when-present: drops only when a course to keep is on the roster":
     is [list: "CSCI 1420"]
   drop-when-present([list: "ENGN 2520", "CSCI 1430"], [list: "CSCI 1420"], [list: "ENGN 2520"])
     is [list: "ENGN 2520", "CSCI 1430"]
-  drop-when-present([list: "DATA 1340", "EEPS 1340", "CSCI 1951"], CSCI-1951-OUTSIDE-PAIRS,
+  drop-when-present([list: "DATA 1340", "EEPS 1340", "CSCI 1951"], DATA-PAIR-OUTSIDE-COURSES,
     [list: "CSCI 1951"]) is [list: "DATA 1340", "EEPS 1340"]
   drop-when-present(empty, [list: "CSCI 1420"], [list: "ENGN 2520"]) is empty
 end
@@ -151,10 +163,10 @@ end
 
 fun get-dept(course-id :: String) -> String:
   doc: "extracts department name from course-id"
-  string-substring(course-id, 0, 4)
+  string-substring(course-id, 0, DEPT-LENGTH)
 end
 
-check "get-dept":
+check "get-dept: the first four characters, padding space included":
   get-dept("MATH 0100") is "MATH"
   get-dept("CSCI 0150") is "CSCI"
   get-dept("PHP  0060") is "PHP "
@@ -162,13 +174,14 @@ end
 
 fun get-num(course-id :: String) -> Option<Number>:
   doc: "extracts number from course-id"
-  if (string-length(course-id) < 9): none
+  if string-length(course-id) < COURSE-NAME-LENGTH:
+    none
   else:
-    string-to-number(string-substring(course-id, 5, 9))
+    string-to-number(string-substring(course-id, NUMBER-START, COURSE-NAME-LENGTH))
   end
 end
 
-check "get-num":
+check "get-num: the four digits as a number, none for a short name":
   get-num("MATH 0100") is some(0100)
   get-num("CSCI 0150") is some(0150)
   get-num("PHP  0060") is some(0060)
@@ -177,9 +190,9 @@ check "get-num":
   get-num("MATH0100") is none
 end
 
-fun all-chars-in(str :: String, allowed :: String) -> Boolean:
-  doc: "determines if every character of str appears in allowed"
-  string-explode(str).all(lam(char :: String) -> Boolean: string-contains(allowed, char) end)
+fun all-chars-in(candidate :: String, allowed :: String) -> Boolean:
+  doc: "determines if every character of candidate appears in allowed"
+  string-explode(candidate).all(lam(char :: String) -> Boolean: string-contains(allowed, char) end)
 end
 
 check "all-chars-in: false on any disallowed character, true for the empty string":
@@ -245,8 +258,8 @@ end
 
 fun keep-one-systems-course(roster :: List<String>) -> List<String>:
   doc: "keeps at most one of CSCI 0300 and CSCI 0330 in roster"
-  if roster.member("CSCI 0300"):
-    filter(lam(course): not(course == "CSCI 0330") end, roster)
+  if roster.member(SYSTEMS-COURSE):
+    filter(lam(course): not(course == ALTERNATE-SYSTEMS-COURSE) end, roster)
   else:
     roster
   end
@@ -290,27 +303,27 @@ check "concentration-course: named intro courses and approved outside courses co
 end
 
 fun not-yet-seen(roster :: List<String>, seen :: List<String>) -> List<String>:
-  doc: "gives a list out of courses in roster that are not yet seen"
-  filter(lam(c): not(seen.member(c)) end, roster)
+  doc: "keeps the courses in roster that aren't in seen"
+  filter(lam(course): not(seen.member(course)) end, roster)
 end
 
-check "not-yet-seen":
-  not-yet-seen([list: "MATH 0100", "CSCI 0150", "PHP  0060"], empty) 
+check "not-yet-seen: removes seen courses and keeps the order":
+  not-yet-seen([list: "MATH 0100", "CSCI 0150", "PHP  0060"], empty)
     is [list: "MATH 0100", "CSCI 0150", "PHP  0060"]
-  not-yet-seen([list: "MATH 0100", "CSCI 0150", "PHP  0060"], [list: "CSCI 0150"]) 
+  not-yet-seen([list: "MATH 0100", "CSCI 0150", "PHP  0060"], [list: "CSCI 0150"])
     is [list: "MATH 0100", "PHP  0060"]
 end
 
 fun prereqs(roster :: List<String>, seen :: List<String>) -> {Boolean; List<String>}:
-  doc: "determines if roster satisfies prequisites"
-  prereqs-in-roster = filter(lam(c): roster.member(c) end, CALCULUS-COURSES)
+  doc: "satisfies the calculus prerequisite with one calculus course from roster"
+  prereqs-in-roster = filter(lam(course): roster.member(course) end, CALCULUS-COURSES)
   cases (List) prereqs-in-roster:
     | empty => {false; seen}
     | link(calculus, _) => {true; link(calculus, seen)}
   end
 end
 
-check "prereqs":
+check "prereqs: one calculus course satisfies it":
   prereqs(empty, empty) is {false; empty}
   prereqs([list: "MATH 0100"], empty) is {true; [list: "MATH 0100"]}
   prereqs([list: "PHP  0060"], empty) is {false; empty}
@@ -336,9 +349,9 @@ check "intro-math: takes the first course of math-order that the roster has":
   intro-math([list: "MATH 1500"], empty, MATH-FOUNDATION-COURSES) is {false; empty}
 end
 
-fun has-course(course :: String, roster :: List<String>, seen :: List<String>) 
+fun has-course(course :: String, roster :: List<String>, seen :: List<String>)
   -> {Boolean; List<String>}:
-  doc: "determines if a course can be used to satisfy concentration reqs"
+  doc: "determines if course is in roster and not yet seen, adding it to seen if so"
   if roster.member(course) and not(seen.member(course)):
     {true; link(course, seen)}
   else:
@@ -346,7 +359,7 @@ fun has-course(course :: String, roster :: List<String>, seen :: List<String>)
   end
 end
 
-check "has-course":
+check "has-course: true only for a course on the roster and not yet seen":
   has-course("CSCI 0220", empty, empty) is {false; empty}
   has-course("MATH 1530", [list: "CSCI 0200", "MATH 1530"], empty) is {true; [list: "MATH 1530"]}
   has-course("CSCI 0190", [list: "CSCI 0190"], [list: "CSCI 0190"]) is {false; [list: "CSCI 0190"]}
@@ -357,8 +370,8 @@ fun foundations(roster :: List<String>, seen :: List<String>) -> {Boolean; List<
   valid-courses = not-yet-seen(roster, seen)
   {has-a; seen-a} = has-course("CSCI 0500", valid-courses, seen)
   {has-b; seen-b} = has-course("CSCI 0410", valid-courses, seen-a)
-  {has-c1; seen-c1} = has-course("CSCI 0300", valid-courses, seen-b)
-  {has-c2; seen-c2} = has-course("CSCI 0330", valid-courses, seen-b)
+  {has-c1; seen-c1} = has-course(SYSTEMS-COURSE, valid-courses, seen-b)
+  {has-c2; seen-c2} = has-course(ALTERNATE-SYSTEMS-COURSE, valid-courses, seen-b)
 
   ask:
     | has-a and has-b and has-c1 then: {true; seen-c1}
@@ -368,31 +381,30 @@ fun foundations(roster :: List<String>, seen :: List<String>) -> {Boolean; List<
   end
 end
 
-check "foundations":
-  foundations([list: "CSCI 0500", "CSCI 0410", "CSCI 0300"], empty) 
+check "foundations: CSCI 0500, CSCI 0410, and one of CSCI 0300 and CSCI 0330":
+  foundations([list: "CSCI 0500", "CSCI 0410", "CSCI 0300"], empty)
     is {true; [list: "CSCI 0300", "CSCI 0410", "CSCI 0500"]}
-  foundations([list: "CSCI 0500", "CSCI 0410", "CSCI 0330"], empty) 
+  foundations([list: "CSCI 0500", "CSCI 0410", "CSCI 0330"], empty)
     is {true; [list: "CSCI 0330", "CSCI 0410", "CSCI 0500"]}
-  foundations([list: "CSCI 0500", "CSCI 0410"], empty) 
+  foundations([list: "CSCI 0500", "CSCI 0410"], empty)
     is {false; [list: "CSCI 0410", "CSCI 0500"]}
   foundations([list: "CSCI 0500", "CSCI 0410", "CSCI 0300", "CSCI 0330"], empty)
     is {true; [list: "CSCI 0300", "CSCI 0410", "CSCI 0500"]}
   foundations([list: "CSCI 0500", "CSCI 0300"], empty)
     is {false; [list: "CSCI 0300", "CSCI 0500"]}
-  foundations([list: "CSCI 0500", "CSCI 0410", "CSCI 0300"], [list: "CSCI 0500"]) 
+  foundations([list: "CSCI 0500", "CSCI 0410", "CSCI 0300"], [list: "CSCI 0500"])
     is {false; [list: "CSCI 0300", "CSCI 0410", "CSCI 0500"]}
 end
 
 fun cs-at-least(course :: String, level :: Number) -> Boolean:
-  doc: "determines if a course is in cs and is a greater than or equal to level"
-  has-name = get-dept(course) == "CSCI"
+  doc: "determines if course is a CSCI course numbered level or higher"
   cases (Option) get-num(course):
     | none => false
-    | some(v) => has-name and (v >= level) 
+    | some(num) => (get-dept(course) == "CSCI") and (num >= level)
   end
 end
 
-check "cs-at-least":
+check "cs-at-least: CSCI courses only, and the level itself counts":
   cs-at-least("CSCI 0500", 500) is true
   cs-at-least("MATH 0500", 500) is false
   cs-at-least("CSCI 0499", 500) is false
@@ -421,7 +433,7 @@ fun core-cs(roster :: List<String>, seen :: List<String>) -> {Boolean; List<Stri
   end
 end
 
-check "core-cs":
+check "core-cs: an intro course with CSCI 0200, or CSCI 0190 alone":
   core-cs([list: "CSCI 0111", "CSCI 0200"], empty) is {true; [list: "CSCI 0111", "CSCI 0200"]}
   core-cs([list: "CSCI 0150", "CSCI 0200"], empty) is {true; [list: "CSCI 0150", "CSCI 0200"]}
   core-cs([list: "CSCI 0170", "CSCI 0200"], empty) is {true; [list: "CSCI 0170", "CSCI 0200"]}
@@ -455,29 +467,23 @@ check "series-c-extra: takes an unseen CSCI course from 200 up, only on Series C
 end
 
 fun tech-elec(roster :: List<String>, seen :: List<String>) -> {Boolean; List<String>}:
-  doc: "determines if the roster satisfies technical elective requirements"
-
-  valid-courses = not-yet-seen(roster, seen)
-  all-1000-plus-tech = sort(filter(lam(course): cs-at-least(course, 1000) 
-      and not(NON-TECHNICAL-COURSES.member(course)) end, valid-courses))
-
-  has-five = all-1000-plus-tech.length() >= 5
-  has-at-least-one = all-1000-plus-tech.length() > 0
-
-  ask:
-    | has-five then: {true; all-1000-plus-tech.take(5) + seen}
-    | has-at-least-one then: {false; all-1000-plus-tech.take(all-1000-plus-tech.length()) + seen}
-    | otherwise: {false; seen}
+  doc: "fills the technical elective slots with unseen technical CSCI courses from 1000 up"
+  technical-courses = sort(filter(lam(course): cs-at-least(course, ONE-THOUSAND-LEVEL)
+      and not(NON-TECHNICAL-COURSES.member(course)) end, not-yet-seen(roster, seen)))
+  if technical-courses.length() >= TECHNICAL-ELECTIVE-COUNT:
+    {true; technical-courses.take(TECHNICAL-ELECTIVE-COUNT) + seen}
+  else:
+    {false; technical-courses + seen}
   end
 end
 
-check "tech-elec":
+check "tech-elec: the first five unseen technical courses, never non-technical ones":
   tech-elec([list: "CSCI 1000", "CSCI 5000", "CSCI 1010", "CSCI 2000", "CSCI 5555"], empty)
     is {true; [list: "CSCI 1000", "CSCI 1010", "CSCI 2000", "CSCI 5000", "CSCI 5555"]}
-  tech-elec([list: "CSCI 1000", "CSCI 5000", "CSCI 1010", "CSCI 2000", "CSCI 5555"], 
+  tech-elec([list: "CSCI 1000", "CSCI 5000", "CSCI 1010", "CSCI 2000", "CSCI 5555"],
     [list: "CSCI 1000"])
     is {false; [list: "CSCI 1010", "CSCI 2000", "CSCI 5000", "CSCI 5555", "CSCI 1000"]}
-  tech-elec([list: "CSCI 1000", "CSCI 5000", "CSCI 1010", "CSCI 2000", "CSCI 5555", "CSCI 1234"], 
+  tech-elec([list: "CSCI 1000", "CSCI 5000", "CSCI 1010", "CSCI 2000", "CSCI 5555", "CSCI 1234"],
     [list: "CSCI 1000"])
     is {true; [list: "CSCI 1010", "CSCI 1234", "CSCI 2000", "CSCI 5000", "CSCI 5555", "CSCI 1000"]}
   tech-elec(empty, empty) is {false; empty}
@@ -485,203 +491,115 @@ check "tech-elec":
 end
 
 fun four-add(roster :: List<String>, seen :: List<String>) -> {Boolean; List<String>}:
-  doc: "determines if the roster satisfies the four additional electives requirements"
+  doc: "fills the additional elective slots, trying linear algebra and outside courses first"
   valid-courses = not-yet-seen(roster, seen)
-  cs-all-1000-plus = sort(filter(lam(course): cs-at-least(course, 1000) end, valid-courses))
-  non-cs-all-1000-plus = 
-    sort(filter(lam(course): non-cs-at-least(course, 1000) end, valid-courses))
-
-  has-320 = has-course("CSCI 0320", roster, seen).{0}
-
-  has-520 = has-course("MATH 0520", roster, seen).{0}
-  has-540 = has-course("MATH 0540", roster, seen).{0}
-  has-260 = has-course("APMA 0260", roster, seen).{0}
-
-  useable-cs-1000 = use-cs-1000(cs-all-1000-plus, 0)
-  useable-non-cs-1000 = use-non-cs-1000(non-cs-all-1000-plus, 0, false)
-
-  instances-1970 = filter(lam(course): course == "CSCI 1970" end, valid-courses)
-  instances-1973 = filter(lam(course): course == "CSCI 1973" end, valid-courses)
-
-  electives-linear = update-electives-linear(has-520, has-540, has-260, empty)
-  electives-1000 =
-    electives-linear + useable-non-cs-1000 + update-electives-320(has-320) + useable-cs-1000
-  electives-197x = update-electives-197x(instances-1970, instances-1973, electives-1000)
-
-  ask: 
-    | electives-197x.length() >= 4 then:
-      {true; electives-197x.take(4)}
-    | otherwise: 
-      {false; electives-197x.take(electives-197x.length())}
+  cs-courses =
+    sort(filter(lam(course): cs-at-least(course, ONE-THOUSAND-LEVEL) end, valid-courses))
+  outside-courses = sort(filter(approved-outside-course, valid-courses))
+  independent-studies =
+    filter(lam(course): valid-courses.member(course) end, INDEPENDENT-STUDY-COURSES)
+  electives = linear-algebra-elective(valid-courses) + use-non-cs-1000(outside-courses, 0, false)
+    + software-engineering-elective(valid-courses) + use-cs-1000(cs-courses, 0)
+    + independent-studies
+  if electives.length() >= ADDITIONAL-ELECTIVE-COUNT:
+    {true; electives.take(ADDITIONAL-ELECTIVE-COUNT)}
+  else:
+    {false; electives}
   end
 end
 
-check "four-add":
-  four-add([list: "CSCI 0320", "CSCI 1000", "CSCI 5000", "CSCI 1010"], empty) 
+check "four-add: four additional electives, linear algebra and outside courses first":
+  four-add([list: "CSCI 0320", "CSCI 1000", "CSCI 5000", "CSCI 1010"], empty)
     is {true; [list: "CSCI 0320", "CSCI 1000", "CSCI 1010", "CSCI 5000"]}
-  four-add([list: "CSCI 0320", "CSCI 1000", "MATH 0520", "MATH 0540"], empty) 
+  four-add([list: "CSCI 0320", "CSCI 1000", "MATH 0520", "MATH 0540"], empty)
     is {false; [list: "MATH 0520", "CSCI 0320", "CSCI 1000"]}
-  four-add([
-      list: "CSCI 0320", "CSCI 1000", "CSCI 5000", "CSCI 1010", "MATH 0520", "MATH 0540"], empty) 
-    is {true; [list: "MATH 0520", "CSCI 0320", "CSCI 1000", "CSCI 1010"]}
-  four-add([list: "CSCI 0320", "CSCI 1000", "APMA 1650", "APMA 1655"], empty) 
+  four-add([list: "CSCI 0320", "CSCI 1000", "CSCI 5000", "CSCI 1010", "MATH 0520", "MATH 0540"],
+    empty) is {true; [list: "MATH 0520", "CSCI 0320", "CSCI 1000", "CSCI 1010"]}
+  four-add([list: "CSCI 0320", "CSCI 1000", "APMA 1650", "APMA 1655"], empty)
     is {false; [list: "APMA 1650", "CSCI 0320", "CSCI 1000"]}
-  four-add([list: "CSCI 0320", "CSCI 1970", "CSCI 1970", "CSCI 1973"], empty) 
-    is {false; [list: "CSCI 0320", "CSCI 1970", "CSCI 1970"]}
-  four-add([list: "CSCI 0320", "CSCI 1970", "CSCI 1970", "CSCI 1973", "CSCI 1000"], empty) 
-    is {true; [list: "CSCI 0320", "CSCI 1000", "CSCI 1970", "CSCI 1970"]}
-  four-add([list: "CSCI 0320", "CSCI 1970", "CSCI 1973", "CSCI 1000"], empty) 
+  four-add([list: "CSCI 0320", "CSCI 1970", "CSCI 1973", "CSCI 1000"], empty)
     is {true; [list: "CSCI 0320", "CSCI 1000", "CSCI 1970", "CSCI 1973"]}
+  four-add([list: "CSCI 1973", "CSCI 0320"], empty) is {false; [list: "CSCI 0320", "CSCI 1973"]}
   four-add([list: "CSCI 1250", "CSCI 1280", "CSCI 1360", "CSCI 1370"], empty)
     is {false; [list: "CSCI 1250", "CSCI 1280", "CSCI 1360"]}
 end
 
-fun update-electives-320(has-320 :: Boolean) -> List<String>:
-  doc: "creates a list of the class if CSCI 0320 is had"
-  if has-320: [list: "CSCI 0320"]
-  else: empty
-  end
-end
-
-check "update-electives-320":
-  update-electives-320(true) is [list: "CSCI 0320"]
-  update-electives-320(false) is empty
-end
-
-fun update-electives-linear(
-    has-520 :: Boolean, has-540 :: Boolean, has-260 :: Boolean, electives :: List<String>)
-  -> List<String>:
-  doc: "adds to the list of used electives one of the linear classes"
-  ask:
-    | has-520 then: electives + [list: "MATH 0520"]
-    | has-540 then: electives + [list:"MATH 0540"]
-    | has-260 then: electives + [list:"APMA 0260"]
-    | otherwise: electives
-  end
-end
-
-check "update-electives-linear":
-  update-electives-linear(true, true, true, empty) is [list: "MATH 0520"]
-  update-electives-linear(false, true, true, empty) is [list: "MATH 0540"]
-  update-electives-linear(false, false, true, empty) is [list: "APMA 0260"]
-  update-electives-linear(false, false, false, empty) is empty
-end
-
-fun update-electives-197x(
-    instances-1970 :: List<String>, instances-1973 :: List<String>, electives :: List<String>)
-  -> List<String>:
-  doc: "adds to the list of used electives a valid combination of cs 197x classes"
-  ask:
-    | instances-1970.length() >= 2 then: electives + instances-1970.take(2)
-    | instances-1973.length() >= 2 then: electives + instances-1973.take(2)
-    | ((1 <= instances-1970.length()) and (1 <= instances-1973.length()))
-      then: electives + instances-1970.take(1) + instances-1973.take(1)
-    | 1 <= instances-1970.length()
-      then: electives + instances-1970.take(1) 
-    | 1 <= instances-1973.length()
-      then: electives + instances-1973.take(1)
-    | otherwise: electives
-  end
-end
-
-check "update-electives-197x":
-  update-electives-197x([list: "CSCI 1970", "CSCI 1970"], empty, empty) 
-    is [list: "CSCI 1970", "CSCI 1970"]
-  update-electives-197x(empty, [list: "CSCI 1973", "CSCI 1973"], empty) 
-    is [list: "CSCI 1973", "CSCI 1973"]
-  update-electives-197x([list: "CSCI 1970"], [list: "CSCI 1973"], empty) 
-    is [list: "CSCI 1970", "CSCI 1973"]
-  update-electives-197x([list: "CSCI 1970"], empty, empty) 
-    is [list: "CSCI 1970"]
-  update-electives-197x(empty, [list: "CSCI 1973"], empty) 
-    is [list: "CSCI 1973"]
-  update-electives-197x(empty, empty, empty) 
-    is empty
-end
-
-fun bool-to-num(b :: Boolean) -> Number:
-  doc: "1 if true, 0 if false"
-  if b: 1
-  else: 0
-  end
-end
-
-check "bool-to-num":
-  bool-to-num(true) is 1
-  bool-to-num(false) is 0
-end
-
-fun use-cs-1000(all-1000 :: List<String>, num-non-tech :: Number) 
-  -> List<String>:
-  doc: "returns list of 1000 level CS courses that can be used for four-add"
-
-  cases (List) all-1000:
+fun linear-algebra-elective(courses :: List<String>) -> List<String>:
+  doc: "the first linear algebra course that courses has, since only one counts"
+  cases (List) filter(lam(course): courses.member(course) end, LINEAR-ALGEBRA-COURSES):
     | empty => empty
-    | link(f,r) => 
+    | link(linear-algebra, _) => [list: linear-algebra]
+  end
+end
+
+check "linear-algebra-elective: at most one course, in the order MATH 0520, 0540, APMA 0260":
+  linear-algebra-elective([list: "APMA 0260", "MATH 0540", "MATH 0520"]) is [list: "MATH 0520"]
+  linear-algebra-elective([list: "APMA 0260", "MATH 0540"]) is [list: "MATH 0540"]
+  linear-algebra-elective([list: "APMA 0260", "CSCI 0320"]) is [list: "APMA 0260"]
+  linear-algebra-elective(empty) is empty
+end
+
+fun software-engineering-elective(courses :: List<String>) -> List<String>:
+  doc: "CSCI 0320 if courses has it"
+  if courses.member(SOFTWARE-ENGINEERING-COURSE):
+    [list: SOFTWARE-ENGINEERING-COURSE]
+  else:
+    empty
+  end
+end
+
+check "software-engineering-elective: CSCI 0320 or nothing":
+  software-engineering-elective([list: "MATH 0520", "CSCI 0320"]) is [list: "CSCI 0320"]
+  software-engineering-elective([list: "CSCI 0330"]) is empty
+end
+
+fun use-cs-1000(cs-courses :: List<String>, num-non-tech :: Number) -> List<String>:
+  doc: "keeps the CSCI courses that can be additional electives, at most three non-technical"
+  cases (List) cs-courses:
+    | empty => empty
+    | link(course, rest-courses) =>
       ask:
-        | (f == "CSCI 1970") or (f == "CSCI 1973") then:
-          use-cs-1000(r, num-non-tech)
-        | NON-TECHNICAL-COURSES.member(f) and (num-non-tech < 3) then:
-          link(f, use-cs-1000(r, num-non-tech + 1))
-        | NON-TECHNICAL-COURSES.member(f) and (num-non-tech >= 3) then:
-          use-cs-1000(r, num-non-tech)
-        | otherwise: 
-          link(f, use-cs-1000(r, num-non-tech))
+        | INDEPENDENT-STUDY-COURSES.member(course) then:
+          use-cs-1000(rest-courses, num-non-tech)
+        | not(NON-TECHNICAL-COURSES.member(course)) then:
+          link(course, use-cs-1000(rest-courses, num-non-tech))
+        | num-non-tech < NON-TECHNICAL-CAP then:
+          link(course, use-cs-1000(rest-courses, num-non-tech + 1))
+        | otherwise:
+          use-cs-1000(rest-courses, num-non-tech)
       end
   end
 end
 
-check "use-cs-1000":
+check "use-cs-1000: at most three non-technical courses, and no independent studies":
   use-cs-1000(NON-TECHNICAL-COURSES, 3) is empty
   use-cs-1000(NON-TECHNICAL-COURSES, 0) is [list: "CSCI 1250", "CSCI 1280", "CSCI 1360"]
-
   use-cs-1000([list: "CSCI 1250", "CSCI 1000", "CSCI 1001"], 3) is [list: "CSCI 1000", "CSCI 1001"]
-  use-cs-1000([list: "CSCI 1250", "CSCI 1000", "CSCI 1001"], 0) 
+  use-cs-1000([list: "CSCI 1250", "CSCI 1000", "CSCI 1001"], 0)
     is [list: "CSCI 1250", "CSCI 1000", "CSCI 1001"]
+  use-cs-1000([list: "CSCI 1000", "CSCI 1970"], 0) is [list: "CSCI 1000"]
 end
 
-fun use-non-cs-1000(all-1000 :: List<String>, num-used :: Number, used-apma-165x :: Boolean) 
+fun use-non-cs-1000(
+    outside-courses :: List<String>, num-used :: Number, used-apma-165x :: Boolean)
   -> List<String>:
-  doc: "returns list of 1000 level non-CS courses that can be used for four-add"
-
-  cases (List) all-1000:
+  doc: "keeps at most three approved outside courses, with only one of APMA 1650 and 1655"
+  cases (List) outside-courses:
     | empty => empty
-    | link(f, r) =>
-      ask:
-        | ((get-dept(f) == "APMA") and ((get-num(f) == some(1655)) or (get-num(f) == some(1650))))
-          and (num-used < 3) then:
-          if used-apma-165x:
-            use-non-cs-1000(r, num-used, used-apma-165x)
-          else:
-            link(f, use-non-cs-1000(r, num-used + 1, true))
-          end
-        | approved-outside-course(f) and (num-used < 3) then:
-          link(f, use-non-cs-1000(r, num-used + 1, used-apma-165x))
-        | otherwise:
-          use-non-cs-1000(r, num-used, used-apma-165x)
+    | link(course, rest-courses) =>
+      if (num-used >= OUTSIDE-COURSE-CAP) or not(approved-outside-course(course))
+        or (used-apma-165x and APMA-165X-COURSES.member(course)):
+        use-non-cs-1000(rest-courses, num-used, used-apma-165x)
+      else:
+        link(course, use-non-cs-1000(rest-courses, num-used + 1,
+            used-apma-165x or APMA-165X-COURSES.member(course)))
       end
   end
 end
 
-check "use-non-cs-1000":
+check "use-non-cs-1000: at most three courses, and one of APMA 1650 and 1655":
   use-non-cs-1000(APPROVED-OUTSIDE-COURSES, 3, false) is empty
   use-non-cs-1000(APPROVED-OUTSIDE-COURSES, 1, false) is [list: "APMA 1080", "APMA 1160"]
   use-non-cs-1000([list: "APMA 1650", "CLPS 1342"], 2, true) is [list: "CLPS 1342"]
   use-non-cs-1000([list: "APMA 1655", "APMA 1650"], 1, false) is [list: "APMA 1655"]
-end
-
-fun non-cs-at-least(course :: String, level :: Number) -> Boolean:
-  doc: "determines if a course is not in cs and is a greater than or equal to level"
-  has-name = not(get-dept(course) == "CSCI")
-  cases (Option) get-num(course):
-    | none => false
-    | some(v) => has-name and (v >= level) 
-  end
-end
-
-check "non-cs-at-least":
-  non-cs-at-least("MATH 0500", 500) is true
-  non-cs-at-least("CSCI 0500", 500) is false
-  non-cs-at-least("MATH 0499", 500) is false
-  non-cs-at-least("CSCI 0499", 500) is false
 end

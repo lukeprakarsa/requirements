@@ -65,7 +65,7 @@ series-c-0220-as-extra =
 
 missing-prereq = drop-course(exact-completed-roster, "MATH 0100")
 missing-core-abd = drop-course(exact-completed-roster, "CSCI 0200")
-missing-core-c = drop-course(exact-completed-roster, "CSCI 0200")
+missing-core-c = drop-course(exact-completed-roster-cs19, "CSCI 0200")
 missing-intro-math = drop-course(exact-completed-roster, "MATH 1530")
 missing-foundations-a = drop-course(exact-completed-roster, "CSCI 0500")
 missing-foundations-b = drop-course(exact-completed-roster, "CSCI 0410")
@@ -83,7 +83,7 @@ missing-foundations-c-malformed = missing-foundations-c + [list: "CSCICSCI 0300"
 missing-tech-elect-malformed = missing-tech-elect + [list: "CSCICSCI 1000"]
 missing-four-add-malformed = missing-four-add + [list: "CSCICSCI 1970"]
 
-check "malformed":
+check "malformed: a doubled department, letters for digits, a five-letter department":
   check-requirements([list: "CSCICSCI 0190"]) is malformed
   check-requirements([list: "CSCI XXXX"]) is malformed
   check-requirements([list: "CSCI 0190", "CSCIC 0190"]) is malformed
@@ -156,18 +156,11 @@ check "completed but malformed":
 end
 
 check "completed but unnecessary (should return completed anyways)":
-  redundant-cs-courses = 
-    [list: "MATH 0100", "CSCI 0150", "CSCI 0200", "MATH 1530", "CSCI 0500", "CSCI 0410", 
-      "CSCI 0300", "CSCI 1000", "CSCI 1001", "CSCI 1002", "CSCI 1003", "CSCI 1004", "CSCI 1005", 
-      "CSCI 0320", "MATH 0520", "CSCI 1970", "CSCI 1973", "CSCI 0170"]
-  check-requirements(redundant-cs-courses) is completed
-  extra-non-cs-courses = [list: "MATH 0100", "CSCI 0150", "CSCI 0200", "MATH 1530", 
-    "CSCI 0500", "CSCI 0410", "CSCI 0300", "CSCI 1000", "CSCI 1001", "CSCI 1002", "CSCI 1003", 
-    "CSCI 1004", "CSCI 1005", "CSCI 0320", "MATH 0520", "CSCI 1970", "CSCI 1973", "MATH 0170"]
-  check-requirements(extra-non-cs-courses) is completed
+  check-requirements(exact-completed-roster + [list: "CSCI 1005", "CSCI 0170"]) is completed
+  check-requirements(exact-completed-roster + [list: "CSCI 1005", "MATH 0170"]) is completed
 end
 
-check "happy case for completed":
+check "completed: the exact Series A roster":
   check-requirements(exact-completed-roster) is completed
 end
 
@@ -226,8 +219,8 @@ check "has-unnecessary but malformed":
   check-requirements(exact-completed-roster + [list: "CSC00170"]) is malformed
 end
 
-check "double counts":
-  check-requirements(drop-course(exact-completed-roster-cs19, "CSCI 0200") + [list: "CSCI 0330"]) 
+check "has-unnecessary: CSCI 0330 can't be the Series C extra next to CSCI 0300":
+  check-requirements(drop-course(exact-completed-roster-cs19, "CSCI 0200") + [list: "CSCI 0330"])
     is has-unnecessary
 end
 
@@ -236,29 +229,29 @@ check "missing 1000-level class, no double counting":
 end
 
 check "redundant linear algebras":
-  check-requirements(drop-course(exact-completed-roster, "CSCI 0320") + [list: "MATH 0540"]) 
+  check-requirements(drop-course(exact-completed-roster, "CSCI 0320") + [list: "MATH 0540"])
     is has-unnecessary
 end
 
-check "redundant ampa 16xx":
+check "has-unnecessary: only one of APMA 1650 and APMA 1655 counts":
   check-requirements(drop-course(exact-completed-roster-apma, "MATH 0520") + [list: "APMA 1655"])
     is has-unnecessary
 end
 
-check "completed with non-cs":
+check "completed: three approved outside courses as additional electives":
   check-requirements(exact-completed-roster-non-cs) is completed
 end
 
-check "overuse non-cs":
-  check-requirements(drop-course(exact-completed-roster-non-cs, "CSCI 0320") + [list: "APMA 1170"]) 
+check "has-unnecessary: a fourth approved outside course doesn't count":
+  check-requirements(drop-course(exact-completed-roster-non-cs, "CSCI 0320") + [list: "APMA 1170"])
     is has-unnecessary
 end
 
-check "completed with non-technical cs":
+check "completed: three non-technical CSCI courses as additional electives":
   check-requirements(exact-completed-roster-non-tech) is completed
 end
 
-check "overuse non-technical cs":
+check "has-unnecessary: a fourth non-technical CSCI course doesn't count":
   check-requirements(drop-course(exact-completed-roster-non-tech, "CSCI 0320")
       + [list: "CSCI 1370"]) is has-unnecessary
 end
@@ -275,7 +268,7 @@ check "all-necessary but malformed":
   check-requirements(missing-four-add-malformed) is malformed
 end
 
-check "happy case for all-necessary":
+check "all-necessary: partial rosters, each missing one requirement":
   check-requirements(empty) is all-necessary
   check-requirements([list: "CSCI 0150"]) is all-necessary
   check-requirements([list: "CSCI 0190", "CSCI 0200"]) is all-necessary
