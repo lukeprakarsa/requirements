@@ -55,12 +55,11 @@ fun check-requirements(courses :: List<String>) -> Completion:
     {core-cs-sat; core-cs-seen} = core-cs(countable-courses, foundations-seen)
     {tech-elec-sat; tech-elect-seen} = tech-elec(countable-courses, core-cs-seen)
     {four-add-sat; four-add-seen} = four-add(countable-courses, tech-elect-seen)
-    
-    all-seen = tech-elect-seen + four-add-seen
+    {series-c-sat; all-seen} = series-c-extra(countable-courses, tech-elect-seen + four-add-seen)
 
     ask:
-      | prereqs-sat and intro-math-sat and foundations-sat and 
-        core-cs-sat and tech-elec-sat and four-add-sat then:
+      | prereqs-sat and intro-math-sat and foundations-sat and
+        core-cs-sat and tech-elec-sat and four-add-sat and series-c-sat then:
         completed
       | not(is-empty(not-yet-seen(filter(concentration-course, trimmed-courses), all-seen))) then:
         has-unnecessary
@@ -319,7 +318,7 @@ check "cs-at-least":
 end
 
 fun core-cs(roster :: List<String>, seen :: List<String>) -> {Boolean; List<String>}:
-  doc: "determines if roster satisfies core cs requirements"
+  doc: "determines if roster satisfies the intro sequence, except the Series C extra course"
   valid-courses = not-yet-seen(roster, seen)
   {has-111; seen-111} = has-course("CSCI 0111", valid-courses, seen)
   {has-150; seen-150} = has-course("CSCI 0150", valid-courses, seen)
@@ -327,19 +326,14 @@ fun core-cs(roster :: List<String>, seen :: List<String>) -> {Boolean; List<Stri
   {has-190; seen-190} = has-course("CSCI 0190", valid-courses, seen)
   {has-200; seen-200} = has-course("CSCI 0200", valid-courses, seen)
 
-  all-200-plus = sort(filter(lam(course): cs-at-least(course, 200) end, valid-courses))
-
-  has-200-plus = not(is-empty(all-200-plus))
-
   ask:
     | has-111 and has-200 then: {true; link("CSCI 0111", link("CSCI 0200", seen))}
     | has-150 and has-200 then: {true; link("CSCI 0150", link("CSCI 0200", seen))}
     | has-170 and has-200 then: {true; link("CSCI 0170", link("CSCI 0200", seen))}
-    | has-190 and has-200-plus then: {true; link("CSCI 0190", link(all-200-plus.get(0), seen))}
+    | has-190 then: {true; seen-190}
     | has-111 then: {false; seen-111}
     | has-150 then: {false; seen-150}
     | has-170 then: {false; seen-170}
-    | has-190 then: {false; seen-190}
     | has-200 then: {false; seen-200}
     | otherwise: {false; seen}
   end
@@ -349,10 +343,33 @@ check "core-cs":
   core-cs([list: "CSCI 0111", "CSCI 0200"], empty) is {true; [list: "CSCI 0111", "CSCI 0200"]}
   core-cs([list: "CSCI 0150", "CSCI 0200"], empty) is {true; [list: "CSCI 0150", "CSCI 0200"]}
   core-cs([list: "CSCI 0170", "CSCI 0200"], empty) is {true; [list: "CSCI 0170", "CSCI 0200"]}
-  core-cs([list: "CSCI 0190", "CSCI 0200"], empty) is {true; [list: "CSCI 0190", "CSCI 0200"]}
-  core-cs([list: "CSCI 0190", "CSCI 2000"], empty) is {true; [list: "CSCI 0190", "CSCI 2000"]}
-  core-cs([list: "CSCI 0190"], empty) is {false; [list: "CSCI 0190"]}
+  core-cs([list: "CSCI 0190", "CSCI 0200"], empty) is {true; [list: "CSCI 0190"]}
+  core-cs([list: "CSCI 0190"], empty) is {true; [list: "CSCI 0190"]}
+  core-cs([list: "CSCI 0150", "CSCI 0190", "CSCI 0200"], empty)
+    is {true; [list: "CSCI 0150", "CSCI 0200"]}
   core-cs([list: "CSCI 1010"], empty) is {false; empty}
+end
+
+fun series-c-extra(roster :: List<String>, seen :: List<String>) -> {Boolean; List<String>}:
+  doc: "fills the Series C extra course slot, which exists only once CSCI 0190 is in seen"
+  if seen.member("CSCI 0190"):
+    cases (List) filter(lam(course): cs-at-least(course, SERIES-C-MIN-LEVEL) end,
+        not-yet-seen(roster, seen)):
+      | empty => {false; seen}
+      | link(extra, _) => {true; link(extra, seen)}
+    end
+  else:
+    {true; seen}
+  end
+end
+
+check "series-c-extra: takes an unseen CSCI course from 200 up, only on Series C":
+  series-c-extra([list: "CSCI 0190", "CSCI 0320", "CSCI 0530"], [list: "CSCI 0320", "CSCI 0190"])
+    is {true; [list: "CSCI 0530", "CSCI 0320", "CSCI 0190"]}
+  series-c-extra([list: "CSCI 0190", "CSCI 0111", "APMA 1080"], [list: "CSCI 0190"])
+    is {false; [list: "CSCI 0190"]}
+  series-c-extra([list: "CSCI 0150", "CSCI 0200", "CSCI 1300"], [list: "CSCI 0150", "CSCI 0200"])
+    is {true; [list: "CSCI 0150", "CSCI 0200"]}
 end
 
 fun tech-elec(roster :: List<String>, seen :: List<String>) -> {Boolean; List<String>}:
@@ -404,9 +421,9 @@ fun four-add(roster :: List<String>, seen :: List<String>) -> {Boolean; List<Str
   instances-1970 = filter(lam(course): course == "CSCI 1970" end, valid-courses)
   instances-1973 = filter(lam(course): course == "CSCI 1973" end, valid-courses)
 
-  electives-cs-320 = update-electives-320(has-320)
-  electives-linear = update-electives-linear(has-520, has-540, has-260, electives-cs-320)
-  electives-1000 = electives-linear + useable-cs-1000 + useable-non-cs-1000
+  electives-linear = update-electives-linear(has-520, has-540, has-260, empty)
+  electives-1000 =
+    electives-linear + useable-non-cs-1000 + update-electives-320(has-320) + useable-cs-1000
   electives-197x = update-electives-197x(instances-1970, instances-1973, electives-1000)
 
   ask: 
@@ -421,12 +438,12 @@ check "four-add":
   four-add([list: "CSCI 0320", "CSCI 1000", "CSCI 5000", "CSCI 1010"], empty) 
     is {true; [list: "CSCI 0320", "CSCI 1000", "CSCI 1010", "CSCI 5000"]}
   four-add([list: "CSCI 0320", "CSCI 1000", "MATH 0520", "MATH 0540"], empty) 
-    is {false; [list: "CSCI 0320", "MATH 0520", "CSCI 1000"]}
+    is {false; [list: "MATH 0520", "CSCI 0320", "CSCI 1000"]}
   four-add([
       list: "CSCI 0320", "CSCI 1000", "CSCI 5000", "CSCI 1010", "MATH 0520", "MATH 0540"], empty) 
-    is {true; [list: "CSCI 0320", "MATH 0520", "CSCI 1000", "CSCI 1010"]}
+    is {true; [list: "MATH 0520", "CSCI 0320", "CSCI 1000", "CSCI 1010"]}
   four-add([list: "CSCI 0320", "CSCI 1000", "APMA 1650", "APMA 1655"], empty) 
-    is {false; [list: "CSCI 0320", "CSCI 1000", "APMA 1650"]}
+    is {false; [list: "APMA 1650", "CSCI 0320", "CSCI 1000"]}
   four-add([list: "CSCI 0320", "CSCI 1970", "CSCI 1970", "CSCI 1973"], empty) 
     is {false; [list: "CSCI 0320", "CSCI 1970", "CSCI 1970"]}
   four-add([list: "CSCI 0320", "CSCI 1970", "CSCI 1970", "CSCI 1973", "CSCI 1000"], empty) 

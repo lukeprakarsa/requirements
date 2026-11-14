@@ -41,6 +41,18 @@ nine-cs-electives =
 
 ten-cs-electives = nine-cs-electives + [list: "CSCI 1430"]
 
+series-c-before-electives =
+  [list: "MATH 0100", "CSCI 0190", "CSCI 0220", "CSCI 0500", "CSCI 0410", "CSCI 0300",
+    "CSCI 1300", "CSCI 1310", "CSCI 1320", "CSCI 1330", "CSCI 1340"]
+
+series-c-extra-only-0530 =
+  series-c-before-electives
+  + [list: "CSCI 0320", "MATH 0520", "APMA 1080", "APMA 1160", "CSCI 0530"]
+
+series-c-three-outside =
+  series-c-before-electives
+  + [list: "CSCI 1350", "CSCI 1380", "APMA 1080", "APMA 1160", "APMA 1690"]
+
 missing-prereq = drop-course(exact-completed-roster, "MATH 0100")
 missing-core-abd = drop-course(exact-completed-roster, "CSCI 0200")
 missing-core-c = drop-course(exact-completed-roster, "CSCI 0200")
@@ -344,4 +356,12 @@ check "has-unnecessary: the Series C extra slot opens only once CSCI 0190 is on 
     is has-unnecessary
   check-requirements([list: "CSCI 0150"] + ten-cs-electives) is has-unnecessary
   check-requirements([list: "CSCI 0190"] + ten-cs-electives) is all-necessary
+end
+
+check "Series C: the extra course is a CSCI course the electives don't need":
+  check-requirements([list: "CSCI 0190", "CSCI 0320", "CSCI 0530"]) is all-necessary
+  check-requirements(series-c-extra-only-0530) is completed
+  check-requirements(drop-course(series-c-extra-only-0530, "CSCI 0530")) is all-necessary
+  check-requirements(series-c-three-outside) is completed
+  check-requirements(drop-course(series-c-three-outside, "CSCI 1380")) is all-necessary
 end
