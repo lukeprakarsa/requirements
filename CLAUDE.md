@@ -75,19 +75,19 @@ pyret-npm 0.1.28 is the newest release, and it has no `essentials2021` context. 
   `requirements-2-code.arr` to run the helper tests). It copies `reqs-common.arr` and the three
   `requirements-2-*.arr` files into a temp folder (`$CLAUDE_JOB_DIR/tmp` in background sessions),
   changes line 1 of the three copies to `use context starter2024`, and runs `pyret`. Never
-  change the context line in the real files. After cluster 4 (Nov 13): tests file 255 of 255,
-  code file 122 of 122.
+  change the context line in the real files. After cluster 5, part 1 (Nov 13): tests file 276 of
+  276, code file 128 of 128.
 - `scratch/feedback.py run REV OUT.json` runs every runnable test from
   `context/feedback-impl-10.md` against the code at a commit (or `WORKTREE`); `compare` lists the
   results that changed between two runs and flags regressions; `show` lists failures. 249 of the
   report's tests are runnable (7 call suite helpers). Passes: 37 before cluster 2 (df23cd9), 97
   after part 1 (0350760), 139 after part 2 (4537f3a), 168 after cluster 3, part 1 (a3918f3),
   176 after cluster 3, part 2 (bd354c3), 178 after cluster 4, part 1 (59ae56b), 185 after
-  cluster 4, part 2. The report holds only tests impl-10 failed,
-  and some contradict the spec or the decisions log, so a failure there is evidence to weigh, not
-  a bug by itself. Run it before and after each change to catch regressions. The generated check
-  file stays in the temp folder: it holds every report test, so never copy it into `scratch/` or
-  the tests file.
+  cluster 4, part 2, 194 after the pairs (1fd3855), 195 after the Ed #257 merge. The report
+  holds only tests impl-10 failed, and some contradict the spec or the decisions log, so a
+  failure there is evidence to weigh, not a bug by itself. Run it before and after each change
+  to catch regressions. The generated check file stays in the temp folder: it holds every
+  report test, so never copy it into `scratch/` or the tests file.
 - Don't use `essentials2020` for this: it has no `sort` function, and the code calls `sort` 4
   times. `essentials2021` has it (confirmed in the browser).
 - Never read `pyret` output through a pipe (`pyret f | grep`, `$(pyret f)`, Python
@@ -108,10 +108,11 @@ pyret-npm 0.1.28 is the newest release, and it has no `essentials2021` context. 
 - Background sessions create worktrees from `origin/main`. If `origin/main` doesn't have the
   cluster 2 hand-off (commit 76b8e65: `scratch/feedback.py` exists), Luke hasn't merged and
   pushed it yet: ask him to.
-- Before the next session: if Luke said to push, `worktree-cluster-4-search` is on origin and
-  merged into `main`; otherwise ask him whether to push and merge it before starting cluster 5.
+- Before the next session: if Luke said to push, `worktree-cluster-5-pairs` is on origin and
+  merged into `main`; otherwise ask him whether to push and merge it first.
 - Not ready to submit. Everything below has to be done first:
-  - Cluster 5 isn't fixed. Clusters 1 to 4 are done.
+  - Cluster 5 isn't finished: the exclusive pairs are done (part 1); the open decisions-log
+    items below are left. Clusters 1 to 4 are done.
   - Known style problems in `requirements-2-code.arr`: `bool-to-num` is unused, and `.{0}`
     tuple access in `four-add`. `prereqs` has a "prequisites" typo in its doc, and most of the
     old check blocks are named only after their function (`check "prereqs":`). Also seen
@@ -120,7 +121,10 @@ pyret-npm 0.1.28 is the newest release, and it has no `essentials2021` context. 
     space after the comma; 34 lines in the code file and 8 in the tests file end in
     spaces. Since cluster 4, `update-electives-linear`'s `electives` parameter is always
     `empty`. (Cluster 4 removed the `.get(0)` and literal 200 in `core-cs`, the duplicate
-    `length() == 0` branch and the `tech-elect-seen` typo.)
+    `length() == 0` branch and the `tech-elect-seen` typo.) Since the Ed #257 merge, no roster
+    reaching `four-add` has two `"CSCI 1970"` or two `"CSCI 1973"`, so the `>= 2` branches of
+    `update-electives-197x` (and the `four-add` helper tests with two 1970s) are unreachable from
+    `check-requirements`.
 - Suite-P fixtures rebuilt on `worktree-suite-p-fixtures` (Nov 12): the second `"CSCI 1970"` is now
   `"CSCI 1973"` (Bulletin footnote 4), and the two `four-add` combination tests became
   "one 197x course plus `CSCI 1005`". 141 of 141 locally. Luke confirmed the swap.
@@ -172,6 +176,17 @@ pyret-npm 0.1.28 is the newest release, and it has no `essentials2021` context. 
   calculus course), 0330 next to 0300 (suite-N 153, suite-Q 403), non-technical as technical
   (suite-A 117), and one CSCI 1973 filling two slots (suite-O 211, 216). Luke ran 24cc600 in
   the browser starter (Nov 13): every test passed, so cluster 3 has passed there too.
+- Cluster 5, part 1 on `worktree-cluster-5-pairs` (Nov 13, not pushed). 1fd3855: the
+  Handbook's exclusive pairs (decisions log). `drop-when-present` sets ENGN 2520 aside when
+  CSCI 1420 is there; for CSCI 1951, `check-requirements` tries setting aside DATA 1340 and
+  EEPS 1340, then CSCI 1951, and keeps the better result (`best-allocation`); `allocate` now
+  takes the full roster and the countable courses separately. 12 new tests in 2 check blocks
+  (7 failed before). Feedback 185 to 194 (suite-B 147, 149, 151, 237; C 105, 106; E 155;
+  K 76; O 139). Then the Ed #257 merge: `check-requirements` applies `distinct` after
+  trimming. 3 new tests in 1 check block (1 failed before). Feedback 194 to 195 (suite-M
+  222); suite-L 52 changed from `has-unnecessary` to `all-necessary` but fails either way
+  (it lists `"CSCI 1230"` twice). Suite-O 135 (DATA 1340 with EEPS 1340) still fails, as
+  decided. Luke hasn't run part 1 in the browser starter yet.
 - Cluster 3 is done. The 17 report tests that still expect `has-unnecessary` and get
   `all-necessary`: 7 list a course twice (out of scope), 9 are exclusive pairs and 1 is the
   shared non-technical cap (both open).
@@ -255,8 +270,16 @@ Each line notes how the other implementations split.
       slot (footnote 3: "None of these can be CS non-technical courses"), and at most 3 can fill
       additional slots ("no more than three non-technical courses"). So
       `[list: "CSCI 1250", "CSCI 1280", "CSCI 1360", "CSCI 1370"] is has-unnecessary`.
-- [ ] Which pairs are mutually exclusive? ENGN 2520 with CSCI 1420 split 8 to 9; DATA 1340 with
-      CSCI 1951A got 4 of 17; EEPS 1340 with DATA 1340 got 4 of 17.
+- [x] Exclusive pairs (Nov 13, Luke: "if i missed something from the handbook, the handbook
+      should be right"): the Handbook's approved outside list, which the Bulletin defers to ("see
+      the concentration handbook for the current list"), says "cannot use both ENGN 2520 and
+      CSCI 1420", "DATA 1340/EEPS 1340 (cannot use DATA 1340 and CSCI 1951A)" and "EEPS 1340
+      (formerly 1960D; cannot use both EEPS 1340 and CSCI 1951A)". Only one course of each pair
+      counts, and suffixes are ignored (Ed #257), so CSCI 1951I counts as CSCI 1951A. DATA 1340
+      and EEPS 1340 are different courses (different departments) and both count, so
+      `[list: "DATA 1340", "EEPS 1340"] is all-necessary`. Majority: ENGN 2520 with CSCI 1420
+      split 8 to 9; DATA 1340 with CSCI 1951A got 4 of 17, EEPS 1340 with CSCI 1951 5 of 17;
+      DATA 1340 with EEPS 1340 (expecting `has-unnecessary`) 4 of 17.
 - [x] 2000-level CSCI courses can fill technical slots unless they're non-technical (Ed #786:
       "If those 2000-level courses are also Technical, then yes."). 12 of 17 agreed.
 - [x] A course is unnecessary when it could count toward a requirement but every slot it could
@@ -275,9 +298,13 @@ Each line notes how the other implementations split.
       2402C, 2952S, 2999A) count as technical (Req 1 handout: "treat all of them as technical").
 - [x] Every 1000-level MATH course is an approved outside course (Nov 12, Luke; Handbook list:
       "Math: all 1000-level math courses"). 2000-level MATH courses are not.
-- [x] Two names that are the same course once trimmed (`"CSCI 2951A"`, `"CSCI 2951B"`) list one
-      course twice, which is outside the spec: write no tests for it (Nov 12, Luke). Suite-M
-      lines 228, 231 and 422 do this; 11 of 17 expected `all-necessary`.
+- [x] Two names that are the same course once trimmed (`"CSCI 2951A"`, `"CSCI 2951B"`) merge
+      into one course that counts once and is never unnecessary (Nov 13, Luke, from Ed #257:
+      "Count it only once. Once the suffixes disappear, all the courses merge into one (in our
+      model, not in reality)."). This replaces the Nov 12 decision to treat them as one course
+      listed twice and write no tests. Suite-M 222 (10 of 17), 228, 231 and 422 (11 of 17)
+      expect `all-necessary`. It also means `"CSCI 1970A"` and `"CSCI 1970B"` are one use of
+      CSCI 1970.
 - [x] Only one of CSCI 0300 and CSCI 0330 counts anywhere in the concentration, so the other
       can't be the Series C extra course (Nov 13, Luke). Bulletin systems row: "Concentration
       credit for only one of 300/330"; the slot holds one course anyway, so the phrase only

@@ -18,6 +18,25 @@ What it settles: a 2000-level CSCI course can fill a CSCI Technical Elective slo
 non-technical course. Bulletin footnote 3 on that slot: "None of these can be CS non-technical
 courses. The list of these is in the concentration handbook."
 
+## #257: Repeated Courses in Requirements 1
+
+- Category: Assignments – Requirements 1
+- Asked by: a student, about Oct 23, 2026 (shown as "3 weeks ago" on Nov 13)
+- Answered by: Shriram Krishnamurthi (staff); the accepted answer
+- Captured: Nov 13, 2026, from Luke's screenshot
+
+> **Question:** For courses with suffixes, we are told to ignore the suffix for any courses that
+> have them. However, that may cause duplicate courses to appear in our data. How should that be
+> accounted for? Should the duplicate be removed, and if not would the duplicate be considered
+> an unnecessary course?
+>
+> **Answer:** Count it only once. Once the suffixes disappear, all the courses merge into one (in
+> our model, not in reality).
+
+What it settles: names that are the same course once trimmed (`"CSCI 2951A"`, `"CSCI 2951B"`)
+are one course. It counts once and is never unnecessary. It also means a suffix can't tell two
+courses apart, so `"CSCI 1951I"` is the CSCI 1951A of the Handbook's exclusive pairs.
+
 ## #318: final files must match the Req 2 starter
 
 Referenced in CLAUDE.md ("confirmed by staff on Ed #318"). The post text hasn't been captured
