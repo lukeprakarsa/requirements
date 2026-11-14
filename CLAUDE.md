@@ -241,6 +241,10 @@ Each line notes how the other implementations split.
       would flip). If it's examples, the code's "any CSCI course from 200 up" stands and 0220 can
       be the extra next to MATH 1530 (suite-B 291, 296; suite-O 71, 107, 144, 172, 195: 9 to 12
       of 17; suite-C 69, 0530 as the extra: 11 of 17).
+      Partly settled (Nov 13, Luke): the list's "1000-level course" includes 2000-level courses,
+      as for technical electives (Ed #786: "If those 2000-level courses are also Technical, then
+      yes."). Still open: CSCI 0220, 0320 and unlisted 200 to 999 courses as the extra, and
+      whether #786's "also Technical" applies to the extra (the code lets CSCI 1800 be it).
 - [x] Non-technical CSCI courses (Nov 12, from the Bulletin table): none can fill a technical
       slot (footnote 3: "None of these can be CS non-technical courses"), and at most 3 can fill
       additional slots ("no more than three non-technical courses"). So
