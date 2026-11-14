@@ -95,7 +95,8 @@ pyret-npm 0.1.28 is the newest release, and it has no `essentials2021` context. 
   pipe open, and the reader waits forever (Nov 13, after a restart). Send the output to a file
   instead: `pyret f > out.txt 2>&1 < /dev/null`, as `scratch/feedback.py` now does.
   `pyret --shutdown` stops the server.
-- Pyret rejects a name that shadows a built-in: a parameter named `text` doesn't compile.
+- Pyret rejects a name that shadows a built-in: parameters named `text` or `drop` don't
+  compile.
 - If the CLI rejects something else, tell Luke instead of working around it in the lines above
   "DO NOT CHANGE".
 
@@ -111,8 +112,10 @@ pyret-npm 0.1.28 is the newest release, and it has no `essentials2021` context. 
 - Before the next session: if Luke said to push, `worktree-cluster-5-pairs` is on origin and
   merged into `main`; otherwise ask him whether to push and merge it first.
 - Not ready to submit. Everything below has to be done first:
-  - Cluster 5 isn't finished: the exclusive pairs are done (part 1); the open decisions-log
-    items below are left. Clusters 1 to 4 are done.
+  - Cluster 5 isn't finished: the exclusive pairs and the Ed #257 merge are done (part 1).
+    Left: the open decisions-log items (shared non-technical cap, CSCI 1970/1973 as technical,
+    3000+ courses, unlisted 200 to 999), each waiting on Luke, likely via Ed. Clusters 1 to 4
+    are done.
   - Known style problems in `requirements-2-code.arr`: `bool-to-num` is unused, and `.{0}`
     tuple access in `four-add`. `prereqs` has a "prequisites" typo in its doc, and most of the
     old check blocks are named only after their function (`check "prereqs":`). Also seen
@@ -186,7 +189,7 @@ pyret-npm 0.1.28 is the newest release, and it has no `essentials2021` context. 
   trimming. 3 new tests in 1 check block (1 failed before). Feedback 194 to 195 (suite-M
   222); suite-L 52 changed from `has-unnecessary` to `all-necessary` but fails either way
   (it lists `"CSCI 1230"` twice). Suite-O 135 (DATA 1340 with EEPS 1340) still fails, as
-  decided. Luke hasn't run part 1 in the browser starter yet.
+  decided. Luke ran 1c19a2b in the browser starter (Nov 13): every test passed.
 - Cluster 3 is done. The 17 report tests that still expect `has-unnecessary` and get
   `all-necessary`: 7 list a course twice (out of scope), 9 are exclusive pairs and 1 is the
   shared non-technical cap (both open).
