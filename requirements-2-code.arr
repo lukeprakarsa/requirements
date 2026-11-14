@@ -31,6 +31,8 @@ LINEAR-ALGEBRA-COURSES = [list: "MATH 0520", "MATH 0540", "APMA 0260"]
 SYSTEMS-COURSE = "CSCI 0300"
 ALTERNATE-SYSTEMS-COURSE = "CSCI 0330"
 SOFTWARE-ENGINEERING-COURSE = "CSCI 0320"
+SERIES-C-COURSE = "CSCI 0190"
+NAMED-INTERMEDIATE-COURSES = [list: "CSCI 0300", "CSCI 0320", "CSCI 0330", "CSCI 0410", "CSCI 0500"]
 INDEPENDENT-STUDY-COURSES = [list: "CSCI 1970", "CSCI 1973"]
 APMA-165X-COURSES = [list: "APMA 1650", "APMA 1655"]
 ENGN-PAIR-CSCI-COURSES = [list: "CSCI 1420"]
@@ -115,12 +117,14 @@ fun allocate(courses :: List<String>, countable-courses :: List<String>,
   {tech-elec-sat; tech-elec-seen} = tech-elec(countable-courses, core-cs-seen)
   {four-add-sat; four-add-seen} = four-add(countable-courses, tech-elec-seen)
   {series-c-sat; all-seen} = series-c-extra(countable-courses, tech-elec-seen + four-add-seen)
+  on-series-c = courses.member(SERIES-C-COURSE)
+  relevant-courses = filter(lam(course): concentration-course(course, on-series-c) end, courses)
 
   ask:
     | prereqs-sat and intro-math-sat and foundations-sat and
       core-cs-sat and tech-elec-sat and four-add-sat and series-c-sat then:
       completed
-    | not(is-empty(not-yet-seen(filter(concentration-course, courses), all-seen))) then:
+    | not(is-empty(not-yet-seen(relevant-courses, all-seen))) then:
       has-unnecessary
     | otherwise: all-necessary
   end
@@ -289,17 +293,22 @@ check "approved-outside-course: the Handbook list, plus every 1000-level MATH co
   approved-outside-course("MATH 2010") is false
 end
 
-fun concentration-course(course :: String) -> Boolean:
-  doc: "determines if course could count toward some concentration requirement"
+fun concentration-course(course :: String, on-series-c :: Boolean) -> Boolean:
+  doc: "determines if course could count toward some requirement of the roster's path"
   CALCULUS-COURSES.member(course) or INTRO-COURSES.member(course)
   or MATH-FOUNDATION-COURSES.member(course) or LINEAR-ALGEBRA-COURSES.member(course)
-  or approved-outside-course(course) or cs-at-least(course, SERIES-C-MIN-LEVEL)
+  or NAMED-INTERMEDIATE-COURSES.member(course) or approved-outside-course(course)
+  or cs-at-least(course, ONE-THOUSAND-LEVEL)
+  or (on-series-c and cs-at-least(course, SERIES-C-MIN-LEVEL))
 end
 
-check "concentration-course: named intro courses and approved outside courses count":
-  concentration-course("CSCI 0190") is true
-  concentration-course("CSCI 0100") is false
-  concentration-course("PHP  2630") is true
+check "concentration-course: named courses always count; other CSCI 200 to 999 only on Series C":
+  concentration-course("CSCI 0190", false) is true
+  concentration-course("CSCI 0100", true) is false
+  concentration-course("PHP  2630", false) is true
+  concentration-course("CSCI 0410", false) is true
+  concentration-course("CSCI 0530", true) is true
+  concentration-course("CSCI 0530", false) is false
 end
 
 fun not-yet-seen(roster :: List<String>, seen :: List<String>) -> List<String>:
@@ -446,7 +455,7 @@ end
 
 fun series-c-extra(roster :: List<String>, seen :: List<String>) -> {Boolean; List<String>}:
   doc: "fills the Series C extra course slot, which exists only once CSCI 0190 is in seen"
-  if seen.member("CSCI 0190"):
+  if seen.member(SERIES-C-COURSE):
     cases (List) filter(lam(course): cs-at-least(course, SERIES-C-MIN-LEVEL) end,
         not-yet-seen(roster, seen)):
       | empty => {false; seen}

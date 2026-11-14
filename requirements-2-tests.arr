@@ -409,3 +409,20 @@ check "Series C: CSCI 0220 can be the extra course while MATH 1530 is the math f
       "MATH 1530"]) is has-unnecessary
   check-requirements([list: "CSCI 0190", "CSCI 0220", "MATH 1530"]) is all-necessary
 end
+
+check "all-necessary: an unlisted CSCI course from 200 to 999 is ignored without CSCI 0190":
+  check-requirements([list: "CSCI 0999"]) is all-necessary
+  check-requirements([list: "CSCI 0150", "CSCI 0530"]) is all-necessary
+  check-requirements(missing-tech-elect + [list: "CSCI 0530"]) is all-necessary
+  check-requirements([list: "CSCI 0190", "CSCI 0530"]) is all-necessary
+  check-requirements([list: "CSCI 0190", "CSCI 0530", "CSCI 0999"]) is has-unnecessary
+end
+
+check "electives: CSCI 1970 and courses from 3000 up can be technical; the cap is CSCI only":
+  check-requirements(drop-course(exact-completed-roster, "CSCI 1004") + [list: "APMA 1080"])
+    is completed
+  check-requirements(drop-course(exact-completed-roster, "CSCI 1004") + [list: "CSCI 3000"])
+    is completed
+  check-requirements([list: "CSCI 1800", "CSCI 1805", "APMA 1910", "IAPA 1801"])
+    is all-necessary
+end
